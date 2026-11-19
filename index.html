@@ -98,7 +98,7 @@
     <div id="intro-overlay">
         <img
             id="intro-gif"
-            src="inv.mp4"
+            src="https://s5.ezgif.com/tmp/ezgif-559543d607842ec9.gif"
             alt="TIFT Intro Animation"
         />
         <button id="skip-intro-btn" type="button">SKIP INTRO &rarr;</button>
@@ -137,6 +137,12 @@
         <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <!-- Highway cards are rendered here strictly showing: Highway Name, Fog Status, Humidity %, and Time -->
         </section>
+
+        <!-- Connection Debugger Box -->
+        <div class="mt-8 max-w-xl mx-auto w-full bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-xs font-mono text-slate-400">
+            <span class="text-sky-400 font-bold uppercase tracking-wider">Connection Status:</span>
+            <span id="debug-status" class="text-slate-300 ml-2">Connecting to Adafruit IO...</span>
+        </div>
     </main>
 
     <!-- Minimal Footer -->
@@ -156,12 +162,12 @@
          * PROGRAMMER CONFIGURATION (ADAFRUIT IO INTEGRATION)
          * ============================================================================ */
         const PROGRAMMER_CONFIG = {
-            POLL_INTERVAL_MS: 15000, // 15-second polling interval to prevent rate-limiting
+            POLL_INTERVAL_MS: 15000, // 15-second polling interval
             GIF_DURATION_MS: 9000,   // Close intro GIF after 9 seconds
 
             // Adafruit IO Authentication Headers (Updated Key)
             HEADERS: {
-                'X-AIO-Key': 'aio_AgOW02bGGFVeZicHvm2NswgmSsAo',
+                'X-AIO-Key': 'aio_pcab26NLsddqmaZKraZAugFZ1khM',
                 'Accept': 'application/json'
             },
 
@@ -175,8 +181,15 @@
             ]
         };
 
-        // Cache to store last known good reading per highway so transient errors don't blank out the UI
         const lastKnownReadings = {};
+
+        function updateDebugStatus(message, isError = false) {
+            const debugEl = document.getElementById('debug-status');
+            if (debugEl) {
+                debugEl.textContent = message;
+                debugEl.className = isError ? 'text-red-400 ml-2 font-bold' : 'text-emerald-400 ml-2';
+            }
+        }
 
         /* ============================================================================
          * FOG STATUS CALCULATION ENGINE
@@ -290,22 +303,10 @@
         }
 
         /* ============================================================================
-         * FETCH TELEMETRY FROM ADAFRUIT IO (WITH FALLBACK CACHE)
+         * FETCH TELEMETRY FROM ADAFRUIT IO
          * ============================================================================ */
         async function fetchHighwayTelemetry(highwayConfig) {
             const url = (highwayConfig.arduinoCloudUrl || '').trim();
-            const isPlaceholder = !url || url.includes('YOUR_ARDUINO_CLOUD_URL');
-
-            if (isPlaceholder) {
-                const base = Number(highwayConfig.demoHumidity ?? 50);
-                const jitter = (Math.random() - 0.5) * 0.8;
-                const simulatedHumidity = Math.min(100, Math.max(0, Number((base + jitter).toFixed(1))));
-                return {
-                    name: highwayConfig.name,
-                    humidity: simulatedHumidity,
-                    timestamp: new Date()
-                };
-            }
 
             try {
                 const response = await fetch(url, {
@@ -315,7 +316,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error(`HTTP ${response.status} (${response.statusText})`);
                 }
 
                 const contentType = response.headers.get('content-type') || '';
@@ -327,12 +328,14 @@
 
                 if (humidity !== null && Number.isFinite(humidity)) {
                     lastKnownReadings[highwayConfig.name] = { humidity, timestamp };
+                    updateDebugStatus(`Successfully connected! Last reading: ${humidity}% at ${formatDisplayTime(timestamp)}`, false);
                     return { name: highwayConfig.name, humidity, timestamp };
                 } else {
-                    throw new Error('Invalid humidity value parsed');
+                    throw new Error('Received valid response but humidity value was null/missing');
                 }
             } catch (error) {
-                console.warn(`[TIFT Notice] Temporary fetch glitch for "${highwayConfig.name}":`, error.message);
+                console.warn(`[TIFT Notice] Fetch error for "${highwayConfig.name}":`, error.message);
+                updateDebugStatus(`Error fetching feed: ${error.message}. Verify feed key is exactly 'humidity' and has data.`, true);
                 
                 if (lastKnownReadings[highwayConfig.name]) {
                     return {
