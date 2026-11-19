@@ -45,7 +45,7 @@
             background-color: #10B981;
             animation: pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
-        /* Full-screen Intro GIF Overlay */
+        /* Full-screen Intro Video Overlay */
         #intro-overlay {
             position: fixed;
             inset: 0;
@@ -63,10 +63,10 @@
             pointer-events: none;
         }
 
-        #intro-gif {
+        #intro-video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
 
         #skip-intro-btn {
@@ -94,13 +94,15 @@
     </style>
 </head>
 <body class="bg-[#0B1120] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500/30 selection:text-sky-200">
-    <!-- Intro GIF Splash Screen -->
+    <!-- Intro Video Splash Screen -->
     <div id="intro-overlay">
-        <img
-            id="intro-gif"
-            src="https://s5.ezgif.com/tmp/ezgif-559543d607842ec9.gif"
-            alt="TIFT Intro Animation"
-        />
+        <video
+            id="intro-video"
+            src="inv.mp4"
+            autoplay
+            muted
+            playsinline
+        ></video>
         <button id="skip-intro-btn" type="button">SKIP INTRO &rarr;</button>
     </div>
 
@@ -135,13 +137,13 @@
     <!-- Driver-Facing Highway Cards Grid -->
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col justify-center">
         <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            <!-- Highway cards are rendered here strictly showing: Highway Name, Fog Status, Humidity %, and Time -->
+            <!-- Highway cards are rendered here -->
         </section>
 
-        <!-- Connection Debugger Box -->
+        <!-- Connection Status Indicator -->
         <div class="mt-8 max-w-xl mx-auto w-full bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-xs font-mono text-slate-400">
-            <span class="text-sky-400 font-bold uppercase tracking-wider">Connection Status:</span>
-            <span id="debug-status" class="text-slate-300 ml-2">Connecting to Adafruit IO...</span>
+            <span class="text-sky-400 font-bold uppercase tracking-wider">Feed Status:</span>
+            <span id="debug-status" class="text-slate-300 ml-2">Connecting to public Adafruit IO feed...</span>
         </div>
     </main>
 
@@ -159,19 +161,12 @@
 
     <script>
         /* ============================================================================
-         * PROGRAMMER CONFIGURATION (ADAFRUIT IO INTEGRATION)
+         * PROGRAMMER CONFIGURATION (PUBLIC ADAFRUIT IO FEED)
          * ============================================================================ */
         const PROGRAMMER_CONFIG = {
-            POLL_INTERVAL_MS: 15000, // 15-second polling interval
-            GIF_DURATION_MS: 9000,   // Close intro GIF after 9 seconds
+            POLL_INTERVAL_MS: 15000, // Refresh every 15 seconds
 
-            // Adafruit IO Authentication Headers (Updated Key)
-            HEADERS: {
-                'X-AIO-Key': 'aio_pcab26NLsddqmaZKraZAugFZ1khM',
-                'Accept': 'application/json'
-            },
-
-            // Connected Highway Sensors via Adafruit IO feed 'humidity'
+            // Connected Highway Sensors pointing directly to your public feed URL
             HIGHWAYS: [
                 {
                     name: 'АМ "Тракия"',
@@ -303,7 +298,7 @@
         }
 
         /* ============================================================================
-         * FETCH TELEMETRY FROM ADAFRUIT IO
+         * FETCH TELEMETRY FROM PUBLIC ADAFRUIT IO FEED
          * ============================================================================ */
         async function fetchHighwayTelemetry(highwayConfig) {
             const url = (highwayConfig.arduinoCloudUrl || '').trim();
@@ -311,7 +306,6 @@
             try {
                 const response = await fetch(url, {
                     method: 'GET',
-                    headers: PROGRAMMER_CONFIG.HEADERS,
                     cache: 'no-store'
                 });
 
@@ -328,14 +322,14 @@
 
                 if (humidity !== null && Number.isFinite(humidity)) {
                     lastKnownReadings[highwayConfig.name] = { humidity, timestamp };
-                    updateDebugStatus(`Successfully connected! Last reading: ${humidity}% at ${formatDisplayTime(timestamp)}`, false);
+                    updateDebugStatus(`Connected! Live Reading: ${humidity}% at ${formatDisplayTime(timestamp)}`, false);
                     return { name: highwayConfig.name, humidity, timestamp };
                 } else {
-                    throw new Error('Received valid response but humidity value was null/missing');
+                    throw new Error('Feed is empty or has no data points yet');
                 }
             } catch (error) {
                 console.warn(`[TIFT Notice] Fetch error for "${highwayConfig.name}":`, error.message);
-                updateDebugStatus(`Error fetching feed: ${error.message}. Verify feed key is exactly 'humidity' and has data.`, true);
+                updateDebugStatus(`Feed note: ${error.message}. Make sure your feed is set to Public on Adafruit IO.`, true);
                 
                 if (lastKnownReadings[highwayConfig.name]) {
                     return {
@@ -403,11 +397,12 @@
         }
 
         /* ============================================================================
-         * INTRO GIF SPLASH SCREEN CONTROLLER & INITIALIZATION
+         * INTRO VIDEO CONTROLLER & INITIALIZATION
          * ============================================================================ */
         document.addEventListener('DOMContentLoaded', () => {
             const introOverlay = document.getElementById('intro-overlay');
             const skipIntroBtn = document.getElementById('skip-intro-btn');
+            const introVideo = document.getElementById('intro-video');
 
             function closeIntro() {
                 if (!introOverlay) return;
@@ -423,7 +418,12 @@
                 skipIntroBtn.addEventListener('click', closeIntro);
             }
 
-            setTimeout(closeIntro, PROGRAMMER_CONFIG.GIF_DURATION_MS);
+            // Close automatically when the video finishes playing
+            if (introVideo) {
+                introVideo.addEventListener('ended', closeIntro);
+                // Safety fallback timeout (15 seconds) in case video doesn't trigger ended
+                setTimeout(closeIntro, 15000);
+            }
 
             refreshTelemetry();
             setInterval(refreshTelemetry, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
