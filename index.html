@@ -32,7 +32,6 @@
         }
     </script>
     <style>
-        /* Subtle pulsing indicator for live telemetry */
         @keyframes pulse-ring {
             0% { transform: scale(0.85); opacity: 0.85; }
             100% { transform: scale(2.3); opacity: 0; }
@@ -45,6 +44,47 @@
             background-color: #10B981;
             animation: pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
+
+        /* Highway Animation Keyframes */
+        @keyframes road-scroll {
+            0% { stroke-dashoffset: 24; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .animate-road-dashes {
+            animation: road-scroll 0.65s linear infinite;
+        }
+
+        @keyframes car-bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-1.2px); }
+        }
+        .animate-car-1 {
+            animation: car-bounce 1.2s ease-in-out infinite;
+        }
+        .animate-car-2 {
+            animation: car-bounce 1.5s ease-in-out infinite 0.4s;
+        }
+
+        /* Realistic Cloud-Like Fog Drifting Keyframes */
+        @keyframes cloud-roll-left {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes cloud-roll-right {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+        .fog-cloud-bank-1 {
+            width: 200%;
+            animation: cloud-roll-left 18s linear infinite;
+            filter: url(#realistic-cloud-fog) blur(6px);
+        }
+        .fog-cloud-bank-2 {
+            width: 200%;
+            animation: cloud-roll-right 12s linear infinite;
+            filter: url(#realistic-cloud-fog) blur(4px);
+        }
+
         /* Full-screen Intro Video Overlay */
         #intro-overlay {
             position: fixed;
@@ -56,19 +96,16 @@
             justify-content: center;
             transition: opacity 0.6s ease, visibility 0.6s ease;
         }
-
         #intro-overlay.fade-out {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
-
         #intro-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
         #skip-intro-btn {
             position: absolute;
             bottom: 24px;
@@ -86,7 +123,6 @@
             backdrop-filter: blur(6px);
             transition: background 0.2s ease, transform 0.2s ease;
         }
-
         #skip-intro-btn:hover {
             background: rgba(56, 189, 248, 0.22);
             transform: translateY(-1px);
@@ -94,6 +130,16 @@
     </style>
 </head>
 <body class="bg-[#0B1120] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500/30 selection:text-sky-200">
+    <!-- Hidden SVG Filter for Realistic Volumetric Cloud/Fog Texture -->
+    <svg class="hidden" width="0" height="0" aria-hidden="true">
+        <defs>
+            <filter id="realistic-cloud-fog" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.025 0.045" numOctaves="4" seed="8" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="28" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
+
     <!-- Intro Video Splash Screen -->
     <div id="intro-overlay">
         <video
@@ -106,10 +152,9 @@
         <button id="skip-intro-btn" type="button">SKIP INTRO &rarr;</button>
     </div>
 
-    <!-- Minimalist Public Header -->
+    <!-- Header -->
     <header class="border-b border-[#1E293B] bg-[#0B1120]/90 backdrop-blur-md sticky top-0 z-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
-            <!-- Brand Identity -->
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0 overflow-hidden">
                     <img 
@@ -119,12 +164,11 @@
                     >
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white font-mono leading-none">TIFT</h1>
-                    <p class="text-xs text-slate-400 font-medium mt-1">The Invincible Fog Technology</p>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white font-mono leading-none text-left">TIFT</h1>
+                    <p class="text-xs text-slate-400 font-medium mt-1 text-left">The Invincible Fog Technology</p>
                 </div>
             </div>
 
-            <!-- Subtle Live Auto-Refresh Indicator -->
             <div class="flex items-center gap-2.5 bg-[#111827] px-3.5 py-2 rounded-xl border border-[#1E293B]">
                 <span class="relative flex h-2.5 w-2.5 live-pulse">
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
@@ -134,24 +178,24 @@
         </div>
     </header>
 
-    <!-- Driver-Facing Highway Cards Grid -->
+    <!-- Main Content -->
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col justify-center">
-        <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            <!-- Highway cards are rendered here -->
+        <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
+            <!-- Dynamic highway cards will be rendered here -->
         </section>
 
         <!-- Connection Status Indicator -->
-        <div class="mt-8 max-w-xl mx-auto w-full bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-xs font-mono text-slate-400">
+        <div class="mt-8 max-w-xl mx-auto w-full bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-xs font-mono text-slate-400 text-left">
             <span class="text-sky-400 font-bold uppercase tracking-wider">Feed Status:</span>
             <span id="debug-status" class="text-slate-300 ml-2">Connecting to public Adafruit IO feed...</span>
         </div>
     </main>
 
-    <!-- Minimal Footer -->
+    <!-- Footer -->
     <footer class="border-t border-[#1E293B]/80 py-4 text-center text-xs text-slate-500 font-mono">
         TIFT &bull; Automated Highway Fog Telemetry
     </footer>
-    <pre style="color: #858484; text-align: left; padding: 16px; max-width: 6xl; margin: 0 auto;"> By THE INVINCIBLES:
+    <pre class="text-[#858484] text-left p-4 max-w-6xl w-full mx-auto font-mono text-xs"> By THE INVINCIBLES:
    Radislav Karaivanov
    Borislav Karaivanov
    Radoslav Iliev
@@ -161,44 +205,71 @@
    Daniela Genova</pre>
 
     <script>
-        /* ============================================================================
-         * PROGRAMMER CONFIGURATION (PUBLIC ADAFRUIT IO FEED)
-         * ============================================================================ */
         const PROGRAMMER_CONFIG = {
-            POLL_INTERVAL_MS: 15000, // Refresh every 15 seconds
-
-            // Connected Highway Sensors pointing directly to your public feed URL
+            POLL_INTERVAL_MS: 15000,
             HIGHWAYS: [
                 {
                     name: 'АМ "Тракия"',
                     arduinoCloudUrl: 'https://io.adafruit.com/api/v2/Radkata90/feeds/humidity/data/last',
-                    demoHumidity: 89 // Fallback demo value if offline
+                    demoHumidity: 89,
+                    // INSERT YOUR LIVE CAMERA LINK HERE:
+                    webcamUrl: 'https://weather-webcam.eu/ueb-kamera-ot-avtomagistrala-trakiya-kilometar-165-omv-orizovo/'
                 }
             ]
         };
 
         const lastKnownReadings = {};
+        // Tracks which cards currently have their embedded camera tab open so 15s refreshes don't close it
+        const openCameraTabs = {};
+
+        function toggleCameraTab(idx) {
+            openCameraTabs[idx] = !openCameraTabs[idx];
+            const container = document.getElementById(`camera-panel-${idx}`);
+            const btnLabel = document.getElementById(`camera-btn-label-${idx}`);
+            const iframe = document.getElementById(`camera-iframe-${idx}`);
+
+            if (!container || !btnLabel) return;
+
+            if (openCameraTabs[idx]) {
+                container.classList.remove('hidden');
+                btnLabel.textContent = 'Hide Live Camera';
+                // Lazy-load the iframe source only when opened
+                if (iframe && !iframe.getAttribute('src')) {
+                    iframe.setAttribute('src', iframe.dataset.src);
+                }
+            } else {
+                container.classList.add('hidden');
+                btnLabel.textContent = 'See Live Camera';
+            }
+        }
 
         function updateDebugStatus(message, isError = false) {
             const debugEl = document.getElementById('debug-status');
             if (debugEl) {
                 debugEl.textContent = message;
-                debugEl.className = isError ? 'text-red-400 ml-2 font-bold' : 'text-emerald-400 ml-2';
+                debugEl.className = isError ? 'text-red-400 ml-2 font-bold text-left' : 'text-emerald-400 ml-2 text-left';
             }
         }
 
-        /* ============================================================================
-         * FOG STATUS CALCULATION ENGINE
-         * ============================================================================ */
-        function calculateFogStatus(humidity) {
+        function calculateFogStatus(humidity, timestamp) {
             const h = Number(humidity);
-            if (!Number.isFinite(h)) {
+            
+            // Stale Data Warning (> 5 minutes old)
+            const isStale = timestamp && (new Date() - new Date(timestamp)) > 5 * 60 * 1000;
+
+            if (!Number.isFinite(h) || isStale) {
                 return {
-                    label: 'OFFLINE',
+                    label: isStale ? 'STALE / OFFLINE' : 'OFFLINE',
                     badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
                     accentBorder: 'border-t-4 border-t-slate-600',
                     dotColor: 'bg-slate-400',
-                    valueColor: 'text-slate-400'
+                    valueColor: 'text-slate-400',
+                    advice: isStale ? 'Sensor data is outdated (>5 min). Proceed with caution.' : 'Sensor data currently unavailable.',
+                    fogOpacity: 0.25,
+                    fogColor: '#64748b',
+                    skyTop: '#090d16',
+                    skyBottom: '#1e293b',
+                    hasFog: false
                 };
             }
 
@@ -208,7 +279,13 @@
                     badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
                     accentBorder: 'border-t-4 border-t-[#10B981]',
                     dotColor: 'bg-[#10B981]',
-                    valueColor: 'text-[#10B981]'
+                    valueColor: 'text-[#10B981]',
+                    advice: 'Normal driving conditions. Visibility is optimal.',
+                    fogOpacity: 0,
+                    fogColor: '#10B981',
+                    skyTop: '#061a26',
+                    skyBottom: '#0f3847',
+                    hasFog: false
                 };
             }
             if (h <= 54) {
@@ -217,7 +294,13 @@
                     badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
                     accentBorder: 'border-t-4 border-t-[#38BDF8]',
                     dotColor: 'bg-[#38BDF8]',
-                    valueColor: 'text-[#38BDF8]'
+                    valueColor: 'text-[#38BDF8]',
+                    advice: 'Watch for localized patches of mist in low areas.',
+                    fogOpacity: 0.48,
+                    fogColor: '#38BDF8',
+                    skyTop: '#0b2236',
+                    skyBottom: '#1e4b6e',
+                    hasFog: true
                 };
             }
             if (h <= 79) {
@@ -226,7 +309,13 @@
                     badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
                     accentBorder: 'border-t-4 border-t-[#F59E0B]',
                     dotColor: 'bg-[#F59E0B]',
-                    valueColor: 'text-[#F59E0B]'
+                    valueColor: 'text-[#F59E0B]',
+                    advice: 'Reduce speed and increase following distance.',
+                    fogOpacity: 0.72,
+                    fogColor: '#F59E0B',
+                    skyTop: '#241a08',
+                    skyBottom: '#5c4112',
+                    hasFog: true
                 };
             }
             return {
@@ -234,13 +323,16 @@
                 badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
                 accentBorder: 'border-t-4 border-t-[#EF4444]',
                 dotColor: 'bg-[#EF4444]',
-                valueColor: 'text-[#EF4444]'
+                valueColor: 'text-[#EF4444]',
+                advice: 'Severe visibility risk! Turn on fog lights and slow down.',
+                fogOpacity: 0.92,
+                fogColor: '#EF4444',
+                skyTop: '#260a0a',
+                skyBottom: '#631717',
+                hasFog: true
             };
         }
 
-        /* ============================================================================
-         * ADAFRUIT IO JSON PAYLOAD PARSER
-         * ============================================================================ */
         function parseArduinoCloudPayload(data) {
             if (typeof data === 'number') {
                 return { humidity: data, timestamp: new Date() };
@@ -276,9 +368,6 @@
             return { humidity: null, timestamp: new Date() };
         }
 
-        /* ============================================================================
-         * FORMATTING & SECURITY HELPERS
-         * ============================================================================ */
         function escapeHTML(str) {
             const div = document.createElement('div');
             div.textContent = String(str);
@@ -298,9 +387,6 @@
             });
         }
 
-        /* ============================================================================
-         * FETCH TELEMETRY FROM PUBLIC ADAFRUIT IO FEED
-         * ============================================================================ */
         async function fetchHighwayTelemetry(highwayConfig) {
             const url = (highwayConfig.arduinoCloudUrl || '').trim();
 
@@ -322,9 +408,23 @@
                 const { humidity, timestamp } = parseArduinoCloudPayload(payload);
 
                 if (humidity !== null && Number.isFinite(humidity)) {
-                    lastKnownReadings[highwayConfig.name] = { humidity, timestamp };
+                    const prevRecord = lastKnownReadings[highwayConfig.name];
+                    const prevHumidity = prevRecord ? prevRecord.humidity : humidity;
+                    
+                    lastKnownReadings[highwayConfig.name] = { 
+                        humidity, 
+                        timestamp, 
+                        prevHumidity 
+                    };
+
                     updateDebugStatus(`Connected! Live Reading: ${humidity}% at ${formatDisplayTime(timestamp)}`, false);
-                    return { name: highwayConfig.name, humidity, timestamp };
+                    return { 
+                        name: highwayConfig.name, 
+                        humidity, 
+                        timestamp, 
+                        prevHumidity, 
+                        webcamUrl: highwayConfig.webcamUrl 
+                    };
                 } else {
                     throw new Error('Feed is empty or has no data points yet');
                 }
@@ -333,43 +433,205 @@
                 updateDebugStatus(`Feed note: ${error.message}. Make sure your feed is set to Public on Adafruit IO.`, true);
                 
                 if (lastKnownReadings[highwayConfig.name]) {
+                    const cached = lastKnownReadings[highwayConfig.name];
                     return {
                         name: highwayConfig.name,
-                        humidity: lastKnownReadings[highwayConfig.name].humidity,
-                        timestamp: lastKnownReadings[highwayConfig.name].timestamp
+                        humidity: cached.humidity,
+                        timestamp: cached.timestamp,
+                        prevHumidity: cached.prevHumidity,
+                        webcamUrl: highwayConfig.webcamUrl
                     };
                 }
 
                 return {
                     name: highwayConfig.name,
                     humidity: null,
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    prevHumidity: null,
+                    webcamUrl: highwayConfig.webcamUrl
                 };
             }
         }
 
-        /* ============================================================================
-         * RENDER CARDS
-         * ============================================================================ */
         function renderHighwayCards(readings) {
             const grid = document.getElementById('highway-grid');
             if (!grid) return;
 
             if (readings.length === 1) {
-                grid.classList.remove('md:grid-cols-2');
-                grid.classList.add('max-w-2xl', 'mx-auto', 'w-full');
+                grid.className = "max-w-2xl mx-auto w-full text-left";
+            } else {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left";
             }
 
-            grid.innerHTML = readings.map(item => {
-                const status = calculateFogStatus(item.humidity);
+            grid.innerHTML = readings.map((item, idx) => {
+                const status = calculateFogStatus(item.humidity, item.timestamp);
                 const humidityDisplay = item.humidity !== null && Number.isFinite(item.humidity)
                     ? `${item.humidity.toFixed(1)}%`
                     : '--%';
 
+                // Trend Calculation
+                let trendIcon = '→';
+                let trendColor = 'text-slate-400';
+                if (item.prevHumidity !== null && item.humidity !== null) {
+                    if (item.humidity > item.prevHumidity + 0.2) {
+                        trendIcon = '↑';
+                        trendColor = 'text-amber-400';
+                    } else if (item.humidity < item.prevHumidity - 0.2) {
+                        trendIcon = '↓';
+                        trendColor = 'text-emerald-400';
+                    }
+                }
+
+                const fogCloudMarkup = status.hasFog ? `
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden" style="opacity: ${status.fogOpacity};">
+                        <div class="fog-cloud-bank-1 absolute inset-y-0 left-0 flex items-center">
+                            <div class="w-1/2 h-full" style="background:
+                                radial-gradient(ellipse 35% 55% at 15% 45%, ${status.fogColor} 0%, transparent 70%),
+                                radial-gradient(ellipse 40% 65% at 45% 35%, ${status.fogColor} 0%, transparent 75%),
+                                radial-gradient(ellipse 38% 55% at 75% 50%, ${status.fogColor} 0%, transparent 70%),
+                                radial-gradient(ellipse 30% 50% at 95% 40%, ${status.fogColor} 0%, transparent 65%);">
+                            </div>
+                            <div class="w-1/2 h-full" style="background:
+                                radial-gradient(ellipse 35% 55% at 15% 45%, ${status.fogColor} 0%, transparent 70%),
+                                radial-gradient(ellipse 40% 65% at 45% 35%, ${status.fogColor} 0%, transparent 75%),
+                                radial-gradient(ellipse 38% 55% at 75% 50%, ${status.fogColor} 0%, transparent 70%),
+                                radial-gradient(ellipse 30% 50% at 95% 40%, ${status.fogColor} 0%, transparent 65%);">
+                            </div>
+                        </div>
+                        <div class="fog-cloud-bank-2 absolute inset-y-0 left-0 flex items-center">
+                            <div class="w-1/2 h-full" style="background:
+                                radial-gradient(ellipse 32% 45% at 22% 62%, ${status.fogColor} 0%, transparent 68%),
+                                radial-gradient(ellipse 42% 50% at 58% 58%, ${status.fogColor} 0%, transparent 72%),
+                                radial-gradient(ellipse 34% 48% at 88% 65%, ${status.fogColor} 0%, transparent 68%);">
+                            </div>
+                            <div class="w-1/2 h-full" style="background:
+                                radial-gradient(ellipse 32% 45% at 22% 62%, ${status.fogColor} 0%, transparent 68%),
+                                radial-gradient(ellipse 42% 50% at 58% 58%, ${status.fogColor} 0%, transparent 72%),
+                                radial-gradient(ellipse 34% 48% at 88% 65%, ${status.fogColor} 0%, transparent 68%);">
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                const isOpen = !!openCameraTabs[idx];
+                const safeWebcamUrl = escapeHTML(item.webcamUrl || '');
+
+                // In-Page Mini Tab ("See Live Camera" toggle + embedded viewer)
+                const cameraSectionMarkup = item.webcamUrl ? `
+                    <div class="flex flex-col gap-3">
+                        <button type="button"
+                                onclick="toggleCameraTab(${idx})"
+                                class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 active:scale-[0.99] text-sky-300 hover:text-white border border-sky-500/40 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span id="camera-btn-label-${idx}">${isOpen ? 'Hide Live Camera' : 'See Live Camera'}</span>
+                        </button>
+
+                        <!-- Embedded Mini Tab Container -->
+                        <div id="camera-panel-${idx}" class="${isOpen ? '' : 'hidden'} rounded-xl overflow-hidden border border-[#1E293B] bg-[#0B1120] shadow-inner">
+                            <div class="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-[#1E293B] text-[11px] font-mono">
+                                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    Live Camera View &bull; Updates every 60s
+                                </span>
+                                <a href="${safeWebcamUrl}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">
+                                    Full Tab &nearr;
+                                </a>
+                            </div>
+                            <div class="relative w-full h-72 sm:h-80 bg-slate-950">
+                                <iframe
+                                    id="camera-iframe-${idx}"
+                                    data-src="${safeWebcamUrl}"
+                                    ${isOpen ? `src="${safeWebcamUrl}"` : ''}
+                                    class="w-full h-full border-0"
+                                    loading="lazy"
+                                    title="Live Highway Camera">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
                 return `
-                    <article class="bg-[#111827] border border-[#1E293B] ${status.accentBorder} rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between gap-6 transition-all">
+                    <article class="bg-[#111827] border border-[#1E293B] ${status.accentBorder} rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between gap-6 transition-all text-left relative overflow-hidden">
+                        
+                        <!-- Animated 3D-Perspective Highway & Cars Scene -->
+                        <div class="relative w-full h-36 rounded-xl overflow-hidden border border-[#1E293B] shadow-inner select-none"
+                             style="background: linear-gradient(180deg, ${status.skyTop} 0%, ${status.skyBottom} 52%, #0f172a 52%, #090d16 100%);">
+                            
+                            <!-- Horizon Atmospheric Haze -->
+                            <div class="absolute inset-x-0 top-[42%] h-8 blur-lg transition-colors duration-700"
+                                 style="background-color: ${status.fogColor}; opacity: ${status.hasFog ? 0.65 : 0.12};"></div>
+
+                            <!-- SVG Highway & Cars -->
+                            <svg viewBox="0 0 400 130" class="w-full h-full relative z-10" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <radialGradient id="headlight-glow-${idx}" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+                                        <stop offset="45%" stop-color="#fde047" stop-opacity="0.45"/>
+                                        <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="road-surface-${idx}" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#1e293b"/>
+                                        <stop offset="100%" stop-color="#090d16"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Perspective Asphalt Road -->
+                                <polygon points="175,65 225,65 370,130 30,130" fill="url(#road-surface-${idx})" />
+                                <line x1="175" y1="65" x2="35" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
+                                <line x1="225" y1="65" x2="365" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
+                                <line x1="200" y1="65" x2="200" y2="130" stroke="#e2e8f0" stroke-width="2.5" stroke-dasharray="10 14" stroke-opacity="0.7" class="animate-road-dashes" />
+
+                                <!-- Distant Car -->
+                                <g class="animate-car-2" style="opacity: ${status.hasFog ? Math.max(0.3, 1 - status.fogOpacity * 0.65) : 0.95};">
+                                    <ellipse cx="242" cy="88" rx="18" ry="4" fill="url(#headlight-glow-${idx})" />
+                                    <path d="M231,74 L234,68 L250,68 L253,74 Z" fill="#475569" />
+                                    <rect x="229" y="74" width="26" height="8" rx="2" fill="#64748b" />
+                                    <circle cx="233" cy="78" r="2.2" fill="#fef9c3" />
+                                    <circle cx="251" cy="78" r="2.2" fill="#fef9c3" />
+                                    <circle cx="233" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
+                                    <circle cx="251" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
+                                </g>
+
+                                <!-- Foreground Car -->
+                                <g class="animate-car-1">
+                                    <polygon points="103,104 82,130 124,130" fill="url(#headlight-glow-${idx})" />
+                                    <polygon points="145,104 124,130 166,130" fill="url(#headlight-glow-${idx})" />
+                                    <rect x="97" y="108" width="8" height="7" rx="1.5" fill="#020617" />
+                                    <rect x="143" y="108" width="8" height="7" rx="1.5" fill="#020617" />
+                                    <path d="M104,95 L110,83 L138,83 L144,95 Z" fill="#334155" stroke="#94a3b8" stroke-width="0.8" />
+                                    <path d="M107,94 L112,85 L136,85 L141,94 Z" fill="#0f172a" />
+                                    <rect x="96" y="94" width="56" height="15" rx="4" fill="#cbd5e1" />
+                                    <rect x="114" y="99" width="20" height="5" rx="1.5" fill="#1e293b" />
+                                    <circle cx="103" cy="101" r="3.5" fill="#ffffff" />
+                                    <circle cx="145" cy="101" r="3.5" fill="#ffffff" />
+                                    <circle cx="103" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
+                                    <circle cx="145" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
+                                </g>
+                            </svg>
+
+                            <!-- Volumetric Cloud-Like Fog Overlay -->
+                            <div class="absolute inset-0 z-20 pointer-events-none transition-opacity duration-700">
+                                ${fogCloudMarkup}
+                            </div>
+
+                            <!-- Subtle Condition Tag -->
+                            <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-sm px-2.5 py-1 rounded-md border border-slate-700/80">
+                                <span class="w-1.5 h-1.5 rounded-full ${status.dotColor}"></span>
+                                <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-200">
+                                    ${status.hasFog ? 'Fog Active' : 'Clear Road'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- See Live Camera Button & In-Page Mini Tab -->
+                        ${cameraSectionMarkup}
+
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
+                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug text-left">
                                 ${escapeHTML(item.name)}
                             </h2>
 
@@ -379,16 +641,25 @@
                             </span>
                         </div>
 
-                        <div class="bg-[#0B1120]/80 border border-[#1E293B] rounded-xl px-5 py-4 flex items-baseline justify-between">
-                            <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Humidity</span>
+                        <div class="bg-[#0B1120]/80 border border-[#1E293B] rounded-xl px-5 py-4 flex items-baseline justify-between text-left">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 text-left block">Humidity</span>
+                                <span class="text-xs font-mono ${trendColor} mt-0.5 inline-block">Trend: ${trendIcon}</span>
+                            </div>
                             <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">
                                 ${escapeHTML(humidityDisplay)}
                             </span>
                         </div>
 
-                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 font-mono pt-1 border-t border-[#1E293B]/70">
-                            <span class="uppercase tracking-wider text-slate-500">Updated</span>
-                            <time datetime="${item.timestamp.toISOString()}" class="text-slate-300 font-medium">
+                        <!-- Driver Safety Advice Box -->
+                        <div class="text-xs sm:text-sm text-slate-300 font-medium bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 text-left">
+                            <span class="text-sky-400 font-bold uppercase tracking-wider block mb-1">Safety Advice:</span>
+                            ${escapeHTML(status.advice)}
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 font-mono pt-1 border-t border-[#1E293B]/70 text-left">
+                            <span class="uppercase tracking-wider text-slate-500 text-left">Updated</span>
+                            <time datetime="${item.timestamp.toISOString()}" class="text-slate-300 font-medium text-right">
                                 ${escapeHTML(formatDisplayTime(item.timestamp))}
                             </time>
                         </div>
@@ -397,9 +668,6 @@
             }).join('');
         }
 
-        /* ============================================================================
-         * INTRO VIDEO CONTROLLER & INITIALIZATION
-         * ============================================================================ */
         document.addEventListener('DOMContentLoaded', () => {
             const introOverlay = document.getElementById('intro-overlay');
             const skipIntroBtn = document.getElementById('skip-intro-btn');
@@ -419,10 +687,8 @@
                 skipIntroBtn.addEventListener('click', closeIntro);
             }
 
-            // Close automatically when the video finishes playing
             if (introVideo) {
                 introVideo.addEventListener('ended', closeIntro);
-                // Safety fallback timeout (15 seconds) in case video doesn't trigger ended
                 setTimeout(closeIntro, 15000);
             }
 
