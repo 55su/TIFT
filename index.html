@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="bg" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,8 +22,8 @@
                     },
                     colors: {
                         board: {
-                            bg: '#0B1120',
-                            card: '#111827',
+                            bg: '#070B14',
+                            card: '#0E1626',
                             border: '#1E293B',
                         }
                     }
@@ -34,7 +34,7 @@
     <style>
         @keyframes pulse-ring {
             0% { transform: scale(0.85); opacity: 0.85; }
-            100% { transform: scale(2.3); opacity: 0; }
+            100% { transform: scale(2.6); opacity: 0; }
         }
         .live-pulse::before {
             content: '';
@@ -45,18 +45,17 @@
             animation: pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
 
-        /* Highway Animation Keyframes */
         @keyframes road-scroll {
             0% { stroke-dashoffset: 24; }
             100% { stroke-dashoffset: 0; }
         }
         .animate-road-dashes {
-            animation: road-scroll 0.65s linear infinite;
+            animation: road-scroll 0.55s linear infinite;
         }
 
         @keyframes car-bounce {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-1.2px); }
+            50% { transform: translateY(-1.5px); }
         }
         .animate-car-1 {
             animation: car-bounce 1.2s ease-in-out infinite;
@@ -65,7 +64,6 @@
             animation: car-bounce 1.5s ease-in-out infinite 0.4s;
         }
 
-        /* Realistic Cloud-Like Fog Drifting Keyframes */
         @keyframes cloud-roll-left {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
@@ -76,21 +74,20 @@
         }
         .fog-cloud-bank-1 {
             width: 200%;
-            animation: cloud-roll-left 18s linear infinite;
+            animation: cloud-roll-left 15s linear infinite;
             filter: url(#realistic-cloud-fog) blur(6px);
         }
         .fog-cloud-bank-2 {
             width: 200%;
-            animation: cloud-roll-right 12s linear infinite;
+            animation: cloud-roll-right 10s linear infinite;
             filter: url(#realistic-cloud-fog) blur(4px);
         }
 
-        /* Full-screen Intro Video Overlay */
         #intro-overlay {
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background-color: #05080f;
+            background-color: #030712;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -108,29 +105,46 @@
         }
         #skip-intro-btn {
             position: absolute;
-            bottom: 24px;
-            right: 24px;
-            padding: 10px 18px;
+            bottom: 28px;
+            right: 28px;
+            padding: 10px 20px;
             background: rgba(15, 23, 42, 0.85);
             color: #38bdf8;
             border: 1px solid rgba(56, 189, 248, 0.45);
-            border-radius: 8px;
+            border-radius: 10px;
             font-family: inherit;
             font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             cursor: pointer;
-            backdrop-filter: blur(6px);
-            transition: background 0.2s ease, transform 0.2s ease;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
         }
         #skip-intro-btn:hover {
-            background: rgba(56, 189, 248, 0.22);
+            background: rgba(56, 189, 248, 0.25);
             transform: translateY(-1px);
+        }
+
+        #admin-modal, #history-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background-color: rgba(3, 7, 18, 0.90);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            transition: opacity 0.3s ease;
+        }
+        #admin-modal.hidden-modal, #history-modal.hidden-modal {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="bg-[#0B1120] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500/30 selection:text-sky-200">
-    <!-- Hidden SVG Filter for Realistic Volumetric Cloud/Fog Texture -->
+<body class="bg-[#070B14] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500/30 selection:text-sky-200">
     <svg class="hidden" width="0" height="0" aria-hidden="true">
         <defs>
             <filter id="realistic-cloud-fog" x="-20%" y="-20%" width="140%" height="140%">
@@ -152,48 +166,290 @@
         <button id="skip-intro-btn" type="button">SKIP INTRO &rarr;</button>
     </div>
 
-    <!-- Header -->
-    <header class="border-b border-[#1E293B] bg-[#0B1120]/90 backdrop-blur-md sticky top-0 z-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0 overflow-hidden">
-                    <img 
-                        src="https://uploads.onecompiler.io/44n6r8jp7/1795015829900/0-02-05-a5afb4b2ee708a7328270b8a87dd4584172d317e45788848d3e5eb213af00343_420ff103f4ebd2b7.jpg"
-                        alt="TIFT Logo"
-                        class="w-full h-full object-cover"
-                    >
+    <!-- Admin Login Modal -->
+    <div id="admin-modal" class="hidden-modal">
+        <div class="bg-[#0E1626] border border-amber-500/40 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl shadow-amber-500/10 text-left">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 font-bold font-mono">
+                        ADM
+                    </div>
+                    <div>
+                        <h2 data-i18n="adminModalTitle" class="text-xl font-bold text-white tracking-tight">Admin Portal Login</h2>
+                        <p data-i18n="adminModalSub" class="text-xs text-slate-400">Restricted access for system administrators.</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-xl font-mono cursor-pointer">&times;</button>
+            </div>
+
+            <form id="admin-form" onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label data-i18n="adminUserLabel" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Admin Username</label>
+                    <input type="text" id="admin-user" required placeholder="Enter username" 
+                           class="w-full bg-[#070B14] border border-[#1E293B] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition-colors">
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white font-mono leading-none text-left">TIFT</h1>
-                    <p class="text-xs text-slate-400 font-medium mt-1 text-left">The Invincible Fog Technology</p>
+                    <label data-i18n="adminPassLabel" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Admin Password</label>
+                    <input type="password" id="admin-pass" required placeholder="••••••••" 
+                           class="w-full bg-[#070B14] border border-[#1E293B] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+
+                <div id="admin-feedback" class="hidden p-3 rounded-xl text-xs font-mono border bg-red-500/15 text-red-300 border-red-500/40"></div>
+
+                <button type="submit" data-i18n="adminSubmitBtn"
+                        class="w-full mt-2 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl font-mono text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-500/20 transition-all cursor-pointer">
+                    Authenticate Admin &rarr;
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Chart Modal -->
+    <div id="history-modal" class="hidden-modal">
+        <div class="bg-[#0E1626] border border-sky-500/40 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl text-left">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#1E293B]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 font-bold font-mono">
+                        📈
+                    </div>
+                    <div>
+                        <h3 id="history-modal-title" class="text-base font-bold font-mono text-white tracking-tight">Telemetry History</h3>
+                        <p class="text-xs text-slate-400">Last 10 recorded humidity points, status thresholds & trends</p>
+                    </div>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white text-xl font-mono cursor-pointer">&times;</button>
+            </div>
+
+            <!-- SVG Line Diagram -->
+            <div class="bg-[#070B14] border border-[#1E293B] rounded-2xl p-4 mb-4 relative">
+                <div class="flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 mb-3 gap-2">
+                    <span class="flex items-center gap-3">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-[#38BDF8] inline-block rounded"></span> Rising (Cyan)</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-[#A855F7] inline-block rounded"></span> Falling (Purple)</span>
+                    </span>
+                    <span class="flex items-center gap-2 text-[10px]">
+                        <span class="text-[#EF4444]">80% Fog</span> •
+                        <span class="text-[#F59E0B]">55% Likely</span> •
+                        <span class="text-[#38BDF8]">30% Mist</span>
+                    </span>
+                </div>
+                <div class="w-full h-64 relative">
+                    <svg id="history-svg-chart" viewBox="0 0 540 220" class="w-full h-full overflow-visible">
+                        <!-- Dynamic threshold lines, trend lines, dots, and % labels rendered via JS -->
+                    </svg>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5 bg-[#111827] px-3.5 py-2 rounded-xl border border-[#1E293B]">
-                <span class="relative flex h-2.5 w-2.5 live-pulse">
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
-                </span>
-                <span class="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">Live Feed</span>
+            <!-- List of Data Points -->
+            <div id="history-points-list" class="space-y-2 max-h-48 overflow-y-auto pr-1 font-mono text-xs">
+                <!-- Injected via JS -->
             </div>
         </div>
-    </header>
+    </div>
+
+    <!-- Sticky Top Navigation & Broadcast Group -->
+    <div class="sticky top-0 z-30 shadow-2xl">
+        <!-- Header -->
+        <header class="border-b border-[#1E293B] bg-[#070B14]/95 backdrop-blur-md">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/25 shrink-0 overflow-hidden border border-sky-400/30">
+                        <img 
+                            src="https://uploads.onecompiler.io/44n6r8jp7/1795015829900/0-02-05-a5afb4b2ee708a7328270b8a87dd4584172d317e45788848d3e5eb213af00343_420ff103f4ebd2b7.jpg"
+                            alt="TIFT Logo"
+                            class="w-full h-full object-cover"
+                        >
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-extrabold tracking-tight text-white font-mono leading-none text-left flex items-center gap-2">
+                            TIFT <span class="text-[9px] bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded-full font-sans uppercase tracking-widest font-bold">Pro</span>
+                        </h1>
+                        <p data-i18n="subtitleTag" class="text-[11px] text-slate-400 font-medium mt-1 text-left">The Invincible Fog Technology</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Traffic Sign Speedometer Widget (Click to request GPS permission / toggle simulation) -->
+                    <button type="button" onclick="requestGeolocationPermission()" id="gps-sign-widget" class="relative w-14 h-14 rounded-full bg-white border-[6px] border-emerald-500 flex flex-col items-center justify-center shadow-lg font-mono shrink-0 transition-colors duration-300 cursor-pointer" title="Click to Request GPS / Enable Tracking">
+                        <span id="gps-speed-num" class="text-base font-extrabold text-slate-900 leading-none">0</span>
+                        <span class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">km/h</span>
+                    </button>
+
+                    <!-- Language Switcher Button (BG / EN) -->
+                    <button type="button" onclick="toggleLanguage()"
+                            class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-sky-300 font-bold tracking-wider transition-colors cursor-pointer"
+                            title="Switch Language BG / EN">
+                        🌐 <span id="current-lang-label">BG</span>
+                    </button>
+
+                    <!-- Audio Alert Toggle -->
+                    <button type="button" id="sound-toggle-btn" onclick="toggleAudioAlert()"
+                            class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-slate-300 transition-colors cursor-pointer">
+                        🔕 <span data-i18n="soundOff">Sound: OFF</span>
+                    </button>
+
+                    <!-- Manual Refresh Button -->
+                    <button type="button" onclick="refreshTelemetry()"
+                            class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-sky-400 hover:text-sky-300 transition-colors cursor-pointer">
+                        ↻ <span data-i18n="refreshBtn">Refresh</span>
+                    </button>
+
+                    <!-- Admin Portal Button -->
+                    <button type="button" id="admin-menu-btn" onclick="openAdminModal()"
+                            class="bg-amber-500/15 hover:bg-amber-500/25 px-3 py-1.5 rounded-xl border border-amber-500/40 text-xs font-mono text-amber-300 font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-md">
+                        🔐 <span data-i18n="adminPortalBtn">Admin Portal</span>
+                    </button>
+
+                    <div class="flex items-center gap-2 bg-[#0E1626] px-3 py-1.5 rounded-xl border border-[#1E293B]">
+                        <span class="relative flex h-2 w-2 live-pulse">
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                        </span>
+                        <span data-i18n="liveFeed" class="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-300">Live Feed</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Persistent Broadcast Safety Ticker -->
+        <div id="emergency-ticker" class="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 border-b border-red-500 text-white px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-between shadow-2xl">
+            <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap animate-pulse max-w-5xl mx-auto">
+                <span class="bg-black/30 px-2 py-0.5 rounded-md text-[10px] font-extrabold border border-red-400/30">🚨 SYSTEM BROADCAST</span>
+                <span id="ticker-text" class="tracking-wide">ВНИМАНИЕ: Опасност от гъста мъгла на АМ Тракия. Спазвайте дистанция и намалете скоростта!</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-4">
+                <span class="text-[10px] bg-black/40 px-2 py-0.5 rounded text-red-200 border border-red-400/20">TIFT PRIORITY</span>
+                <button id="dismiss-broadcast-btn" onclick="clearBroadcast()" class="hidden text-[10px] bg-black/60 hover:bg-black px-2 py-0.5 rounded text-white cursor-pointer border border-red-400/40" title="Admin Quick Clear">✕ Clear</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col justify-center">
+        
+        <!-- User Feature Toolbar: Status Filter Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 font-mono text-xs shadow-xl">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-slate-400 font-bold uppercase tracking-wider mr-1">Filter:</span>
+                <button onclick="setFilter('ALL')" id="filter-btn-ALL" class="px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 transition-all cursor-pointer font-bold shadow-sm">All Roads</button>
+                <button onclick="setFilter('FOG')" id="filter-btn-FOG" class="px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer">Fog / Risk</button>
+                <button onclick="setFilter('CLEAR')" id="filter-btn-CLEAR" class="px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer">Clear</button>
+            </div>
+            <div class="flex items-center gap-2 text-slate-400">
+                <span>Poll:</span>
+                <select id="poll-speed-select" onchange="changePollSpeed(this.value)" class="bg-[#070B14] border border-slate-700 text-sky-400 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer">
+                    <option value="5000">5s</option>
+                    <option value="15000" selected>15s</option>
+                    <option value="30000">30s</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Live Network Summary Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="activeSensors" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">Active Sensors</span>
+                    <span class="text-lg font-bold font-mono text-emerald-400 mt-1 block">1 Online</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-mono border border-emerald-500/20 shadow-inner">📡</div>
+            </div>
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="avgHumidity" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">Avg Humidity</span>
+                    <span id="summary-avg-humidity" class="text-lg font-bold font-mono text-sky-400 mt-1 block">--%</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-mono border border-sky-500/20 shadow-inner">💧</div>
+            </div>
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="systemMode" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">System Mode</span>
+                    <span class="text-lg font-bold font-mono text-indigo-400 mt-1 block">Automated</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono border border-indigo-500/20 shadow-inner">⚡</div>
+            </div>
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="sessionVisitors" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">Live Visitors</span>
+                    <span id="real-visitor-counter" class="text-lg font-bold font-mono text-amber-400 mt-1 block">Loading...</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-mono border border-amber-500/20 shadow-inner">👥</div>
+            </div>
+        </div>
+
+        <!-- Admin-Only Panel -->
+        <div id="admin-stats-panel" class="hidden mb-8 bg-[#0E1626] border border-amber-500/40 rounded-2xl p-6 shadow-2xl text-left transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 mb-4 border-b border-[#1E293B]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono font-bold text-base shadow-inner border border-amber-500/30">
+                        🛡️
+                    </div>
+                    <div>
+                        <h3 data-i18n="adminPanelTitle" class="text-sm font-bold font-mono text-white uppercase tracking-wider">Administrator Control Panel</h3>
+                        <p class="text-xs text-slate-400">Authenticated as <strong class="text-amber-400">adm1</strong> (Auto-syncs with Adafruit IO updates)</p>
+                    </div>
+                </div>
+                <button onclick="handleAdminLogout()" data-i18n="adminLogoutBtn" class="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                    Log Out Admin
+                </button>
+            </div>
+
+            <!-- Admin Data Override Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Override Humidity (%)</label>
+                        <span id="override-status-badge" class="hidden text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Manual Active</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="admin-override-humidity" min="0" max="100" placeholder="e.g. 85" 
+                               class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
+                        <button onclick="applyHumidityOverride()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                            Set
+                        </button>
+                        <button onclick="clearHumidityOverride()" class="px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer" title="Switch back to live Adafruit IO feed">
+                            Live
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold mb-2">Override Visitor Counter</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="admin-override-visitors" min="1" placeholder="e.g. 2500" 
+                               class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
+                        <button onclick="applyVisitorOverride()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Broadcast Management -->
+            <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner">
+                <div>
+                    <span data-i18n="broadcastTitle" class="text-xs font-mono font-bold text-white uppercase tracking-wider block">Persistent Broadcast Message</span>
+                    <span data-i18n="broadcastSub" class="text-[11px] text-slate-400">Publish new alerts or completely delete/hide the broadcast.</span>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="custom-broadcast-input" data-i18n-placeholder="broadcastPlaceholder" placeholder="Type warning message..." 
+                           class="bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500 w-full sm:w-64">
+                    <button onclick="publishBroadcast()" data-i18n="publishBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer shadow-md">
+                        Publish
+                    </button>
+                    <button onclick="deleteBroadcastCompletely()" data-i18n="deleteBroadcastBtn" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-mono text-xs uppercase rounded-xl transition-colors shrink-0 cursor-pointer">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
             <!-- Dynamic highway cards will be rendered here -->
         </section>
-
-        <!-- Connection Status Indicator -->
-        <div class="mt-8 max-w-xl mx-auto w-full bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-xs font-mono text-slate-400 text-left">
-            <span class="text-sky-400 font-bold uppercase tracking-wider">Feed Status:</span>
-            <span id="debug-status" class="text-slate-300 ml-2">Connecting to public Adafruit IO feed...</span>
-        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-[#1E293B]/80 py-4 text-center text-xs text-slate-500 font-mono">
-        TIFT &bull; Automated Highway Fog Telemetry
+    <footer class="border-t border-[#1E293B]/80 py-6 text-center text-xs text-slate-500 font-mono">
+        TIFT &bull; <span data-i18n="footerText">Automated Highway Fog Telemetry</span>
     </footer>
     <pre class="text-[#858484] text-left p-4 max-w-6xl w-full mx-auto font-mono text-xs"> By THE INVINCIBLES:
    Radislav Karaivanov
@@ -205,470 +461,674 @@
    Daniela Genova</pre>
 
     <script>
-        const PROGRAMMER_CONFIG = {
+        let currentLang = localStorage.getItem('tift_lang') || 'bg';
+        let currentFilter = 'ALL';
+
+        const TRANSLATIONS = {
+            en: {
+                subtitleTag: "The Invincible Fog Technology",
+                soundOff: "Sound: OFF",
+                soundOn: "Sound: ON",
+                refreshBtn: "Refresh",
+                adminPortalBtn: "Admin Portal",
+                adminActive: "Admin Active",
+                liveFeed: "Live Feed",
+                activeSensors: "Active Sensors",
+                avgHumidity: "Avg Humidity",
+                systemMode: "System Mode",
+                sessionVisitors: "Live Visitors",
+                adminPanelTitle: "Administrator Control Panel",
+                adminLogoutBtn: "Log Out Admin",
+                totalVisitors: "Total Real Visitors",
+                sensorHealth: "Sensor Health",
+                sensorActive: "Active Feed Connected",
+                cacheStatus: "Cache Status",
+                clearCacheBtn: "Clear Cache ↻",
+                broadcastTitle: "Persistent Broadcast Message",
+                broadcastSub: "Publish new alerts or completely delete/hide the broadcast.",
+                broadcastPlaceholder: "Type warning message...",
+                publishBtn: "Publish",
+                deleteBroadcastBtn: "Delete",
+                adminModalTitle: "Admin Portal Login",
+                adminModalSub: "Restricted access for system administrators.",
+                adminUserLabel: "Admin Username",
+                adminPassLabel: "Admin Password",
+                adminSubmitBtn: "Authenticate Admin →",
+                footerText: "Automated Highway Fog Telemetry",
+                clearRoad: "Clear Road",
+                fogActive: "Fog Active",
+                humidityTitle: "Humidity",
+                trendLabel: "Trend",
+                estVisibility: "Est. Visibility",
+                safeSpeed: "Safe Speed Limit",
+                safetyAdvice: "Safety Advice:",
+                updatedLabel: "Updated",
+                hideCamera: "Hide Live Camera",
+                seeCamera: "See Live Camera",
+                viewHistoryBtn: "📈 View History (Last 10)",
+                liveCameraHeader: "Live Camera View • Updates every 60s",
+                fullTab: "Full Tab ↗",
+                statusClear: "CLEAR",
+                statusMist: "MIST RISK",
+                statusFogLikely: "FOG LIKELY",
+                statusFog: "FOG",
+                adviceClear: "Normal driving conditions. Visibility is optimal.",
+                adviceMist: "Watch for localized patches of mist in low areas.",
+                adviceFogLikely: "Reduce speed and increase following distance.",
+                adviceFog: "Severe visibility risk! Turn on fog lights and slow down."
+            },
+            bg: {
+                subtitleTag: "Технология срещу мъгла",
+                soundOff: "Звук: ИЗКЛ",
+                soundOn: "Звук: ВКЛ",
+                refreshBtn: "Обнови",
+                adminPortalBtn: "Админ Панел",
+                adminActive: "Админ Влязъл",
+                liveFeed: "На живо",
+                activeSensors: "Активни сензори",
+                avgHumidity: "Ср. влажност",
+                systemMode: "Система",
+                sessionVisitors: "Посетители",
+                adminPanelTitle: "Контролен панел на администратора",
+                adminLogoutBtn: "Изход от админ",
+                totalVisitors: "Общо посещения",
+                sensorHealth: "Състояние на сензора",
+                sensorActive: "Активен поток свързан",
+                cacheStatus: "Кеш памет",
+                clearCacheBtn: "Изчисти кеш ↻",
+                broadcastTitle: "Постоянно съобщение за спешни случаи",
+                broadcastSub: "Публикувайте нови сигнали или изтрийте/скрийте изцяло излъчването.",
+                broadcastPlaceholder: "Въведете предупреждение...",
+                publishBtn: "Публикувай",
+                deleteBroadcastBtn: "Изтрий",
+                adminModalTitle: "Вход за администратори",
+                adminModalSub: "Ограничен достъп за системни администратори.",
+                adminUserLabel: "Админ потребител",
+                adminPassLabel: "Админ парола",
+                adminSubmitBtn: "Вход →",
+                footerText: "Автоматизирана телеметрия на мъгла по магистралите",
+                clearRoad: "Чист път",
+                fogActive: "Мъгла",
+                humidityTitle: "Влажност",
+                trendLabel: "Тенденция",
+                estVisibility: "Видимост",
+                safeSpeed: "Препоръчителна скорост",
+                safetyAdvice: "Съвет за безопасност:",
+                updatedLabel: "Обновено",
+                hideCamera: "Скрий камерата",
+                seeCamera: "Виж камера на живо",
+                viewHistoryBtn: "📈 История (Последни 10)",
+                liveCameraHeader: "Камера на живо • Обновяване на 60с",
+                fullTab: "Пълен екран ↗",
+                statusClear: "ЧИСТО",
+                statusMist: "РИСК ОТ МЪГЛА",
+                statusFogLikely: "ВЕРОЯТНА МЪГЛА",
+                statusFog: "МЪГЛА",
+                adviceClear: "Нормални условия за шофиране. Видимостта е оптимална.",
+                adviceMist: "Внимавайте за локални участъци с мъгла в ниските зони.",
+                adviceFogLikely: "Намалете скоростта и увеличете дистанцията.",
+                adviceFog: "Сериозен риск за видимостта! Включете фарове за мъгла и намалете скоростта."
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'bg' ? 'en' : 'bg';
+            localStorage.setItem('tift_lang', currentLang);
+            applyTranslations();
+            checkActiveBroadcast();
+            refreshTelemetry();
+        }
+
+        function applyTranslations() {
+            document.getElementById('current-lang-label').textContent = currentLang.toUpperCase();
+            document.documentElement.lang = currentLang;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (TRANSLATIONS[currentLang][key]) {
+                    el.textContent = TRANSLATIONS[currentLang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (TRANSLATIONS[currentLang][key]) {
+                    el.setAttribute('placeholder', TRANSLATIONS[currentLang][key]);
+                }
+            });
+        }
+
+        let PROGRAMMER_CONFIG = {
             POLL_INTERVAL_MS: 15000,
             HIGHWAYS: [
                 {
                     name: 'АМ "Тракия"',
                     arduinoCloudUrl: 'https://io.adafruit.com/api/v2/Radkata90/feeds/humidity/data/last',
+                    arduinoHistoryUrl: 'https://io.adafruit.com/api/v2/Radkata90/feeds/humidity/data?limit=10',
                     demoHumidity: 89,
-                    // INSERT YOUR LIVE CAMERA LINK HERE:
                     webcamUrl: 'https://weather-webcam.eu/ueb-kamera-ot-avtomagistrala-trakiya-kilometar-165-omv-orizovo/'
                 }
             ]
         };
 
         const lastKnownReadings = {};
-        // Tracks which cards currently have their embedded camera tab open so 15s refreshes don't close it
+        const telemetryHistories = {};
         const openCameraTabs = {};
+        let audioAlertEnabled = false;
+        let sharedAudioCtx = null;
+        let lastBeepTime = 0;
+        let pollIntervalTimer = null;
+        let currentGpsSpeedKmH = 0;
+        let lastGpsPos = null;
+        let globalMaxSpeedLimit = 140;
 
-        function toggleCameraTab(idx) {
-            openCameraTabs[idx] = !openCameraTabs[idx];
-            const container = document.getElementById(`camera-panel-${idx}`);
-            const btnLabel = document.getElementById(`camera-btn-label-${idx}`);
-            const iframe = document.getElementById(`camera-iframe-${idx}`);
+        let isSimulationRunning = false;
+        let simInterval = null;
+        let simLat = 42.25;
+        let simLon = 24.30;
+        let simLastTime = Date.now();
 
-            if (!container || !btnLabel) return;
+        async function initRealVisitorCounter() {
+            const userCounterEl = document.getElementById('real-visitor-counter');
+            let countVal = parseInt(localStorage.getItem('tift_visitor_count') || '1923', 10);
+            if (!sessionStorage.getItem('tift_session_counted')) {
+                countVal += 1;
+                localStorage.setItem('tift_visitor_count', countVal);
+                sessionStorage.setItem('tift_session_counted', 'true');
+            }
+            if (userCounterEl) userCounterEl.textContent = countVal.toLocaleString();
+        }
 
-            if (openCameraTabs[idx]) {
-                container.classList.remove('hidden');
-                btnLabel.textContent = 'Hide Live Camera';
-                // Lazy-load the iframe source only when opened
-                if (iframe && !iframe.getAttribute('src')) {
-                    iframe.setAttribute('src', iframe.dataset.src);
-                }
-            } else {
-                container.classList.add('hidden');
-                btnLabel.textContent = 'See Live Camera';
+        function applyVisitorOverride() {
+            const input = document.getElementById('admin-override-visitors');
+            if (!input || !input.value) return;
+            const val = parseInt(input.value, 10);
+            if (!isNaN(val)) {
+                localStorage.setItem('tift_visitor_count', val);
+                initRealVisitorCounter();
+                input.value = '';
+                alert('Visitor counter updated successfully.');
             }
         }
 
-        function updateDebugStatus(message, isError = false) {
-            const debugEl = document.getElementById('debug-status');
-            if (debugEl) {
-                debugEl.textContent = message;
-                debugEl.className = isError ? 'text-red-400 ml-2 font-bold text-left' : 'text-emerald-400 ml-2 text-left';
-            }
-        }
-
-        function calculateFogStatus(humidity, timestamp) {
-            const h = Number(humidity);
-            
-            // Stale Data Warning (> 5 minutes old)
-            const isStale = timestamp && (new Date() - new Date(timestamp)) > 5 * 60 * 1000;
-
-            if (!Number.isFinite(h) || isStale) {
-                return {
-                    label: isStale ? 'STALE / OFFLINE' : 'OFFLINE',
-                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
-                    accentBorder: 'border-t-4 border-t-slate-600',
-                    dotColor: 'bg-slate-400',
-                    valueColor: 'text-slate-400',
-                    advice: isStale ? 'Sensor data is outdated (>5 min). Proceed with caution.' : 'Sensor data currently unavailable.',
-                    fogOpacity: 0.25,
-                    fogColor: '#64748b',
-                    skyTop: '#090d16',
-                    skyBottom: '#1e293b',
-                    hasFog: false
-                };
-            }
-
-            if (h < 30) {
-                return {
-                    label: 'CLEAR',
-                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
-                    accentBorder: 'border-t-4 border-t-[#10B981]',
-                    dotColor: 'bg-[#10B981]',
-                    valueColor: 'text-[#10B981]',
-                    advice: 'Normal driving conditions. Visibility is optimal.',
-                    fogOpacity: 0,
-                    fogColor: '#10B981',
-                    skyTop: '#061a26',
-                    skyBottom: '#0f3847',
-                    hasFog: false
-                };
-            }
-            if (h <= 54) {
-                return {
-                    label: 'MIST RISK',
-                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
-                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
-                    dotColor: 'bg-[#38BDF8]',
-                    valueColor: 'text-[#38BDF8]',
-                    advice: 'Watch for localized patches of mist in low areas.',
-                    fogOpacity: 0.48,
-                    fogColor: '#38BDF8',
-                    skyTop: '#0b2236',
-                    skyBottom: '#1e4b6e',
-                    hasFog: true
-                };
-            }
-            if (h <= 79) {
-                return {
-                    label: 'FOG LIKELY',
-                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
-                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
-                    dotColor: 'bg-[#F59E0B]',
-                    valueColor: 'text-[#F59E0B]',
-                    advice: 'Reduce speed and increase following distance.',
-                    fogOpacity: 0.72,
-                    fogColor: '#F59E0B',
-                    skyTop: '#241a08',
-                    skyBottom: '#5c4112',
-                    hasFog: true
-                };
-            }
-            return {
-                label: 'FOG',
-                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
-                accentBorder: 'border-t-4 border-t-[#EF4444]',
-                dotColor: 'bg-[#EF4444]',
-                valueColor: 'text-[#EF4444]',
-                advice: 'Severe visibility risk! Turn on fog lights and slow down.',
-                fogOpacity: 0.92,
-                fogColor: '#EF4444',
-                skyTop: '#260a0a',
-                skyBottom: '#631717',
-                hasFog: true
-            };
-        }
-
-        function parseArduinoCloudPayload(data) {
-            if (typeof data === 'number') {
-                return { humidity: data, timestamp: new Date() };
-            }
-            if (typeof data === 'string' && !isNaN(parseFloat(data))) {
-                return { humidity: parseFloat(data), timestamp: new Date() };
-            }
-            if (data && typeof data === 'object') {
-                const item = Array.isArray(data) ? data[data.length - 1] : data;
-                if (!item || typeof item !== 'object') {
-                    return { humidity: null, timestamp: new Date() };
-                }
-
-                const rawVal =
-                    item.value !== undefined ? item.value :
-                    item.last_value !== undefined ? item.last_value :
-                    item.humidity !== undefined ? item.humidity : null;
-
-                const rawTime =
-                    item.created_at ||
-                    item.updated_at ||
-                    item.timestamp ||
-                    item.time;
-
-                const parsedHumidity = rawVal !== null ? Number(rawVal) : null;
-                const parsedTime = rawTime ? new Date(rawTime) : new Date();
-
-                return {
-                    humidity: Number.isFinite(parsedHumidity) ? parsedHumidity : null,
-                    timestamp: isNaN(parsedTime.getTime()) ? new Date() : parsedTime
-                };
-            }
-            return { humidity: null, timestamp: new Date() };
-        }
-
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = String(str);
-            return div.innerHTML;
-        }
-
-        function formatDisplayTime(dateObj) {
-            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
-                return '--:--:--';
-            }
-            return dateObj.toLocaleString([], {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
-
-        async function fetchHighwayTelemetry(highwayConfig) {
-            const url = (highwayConfig.arduinoCloudUrl || '').trim();
-
-            try {
-                const response = await fetch(url, {
-                    method: 'GET',
-                    cache: 'no-store'
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} (${response.statusText})`);
-                }
-
-                const contentType = response.headers.get('content-type') || '';
-                const payload = contentType.includes('application/json')
-                    ? await response.json()
-                    : await response.text();
-
-                const { humidity, timestamp } = parseArduinoCloudPayload(payload);
-
-                if (humidity !== null && Number.isFinite(humidity)) {
-                    const prevRecord = lastKnownReadings[highwayConfig.name];
-                    const prevHumidity = prevRecord ? prevRecord.humidity : humidity;
-                    
-                    lastKnownReadings[highwayConfig.name] = { 
-                        humidity, 
-                        timestamp, 
-                        prevHumidity 
-                    };
-
-                    updateDebugStatus(`Connected! Live Reading: ${humidity}% at ${formatDisplayTime(timestamp)}`, false);
-                    return { 
-                        name: highwayConfig.name, 
-                        humidity, 
-                        timestamp, 
-                        prevHumidity, 
-                        webcamUrl: highwayConfig.webcamUrl 
-                    };
+        function updateOverrideBadge() {
+            const badge = document.getElementById('override-status-badge');
+            const overrideVal = localStorage.getItem('tift_humidity_override');
+            if (badge) {
+                if (overrideVal !== null && overrideVal !== '') {
+                    badge.classList.remove('hidden');
                 } else {
-                    throw new Error('Feed is empty or has no data points yet');
+                    badge.classList.add('hidden');
                 }
-            } catch (error) {
-                console.warn(`[TIFT Notice] Fetch error for "${highwayConfig.name}":`, error.message);
-                updateDebugStatus(`Feed note: ${error.message}. Make sure your feed is set to Public on Adafruit IO.`, true);
-                
-                if (lastKnownReadings[highwayConfig.name]) {
-                    const cached = lastKnownReadings[highwayConfig.name];
-                    return {
-                        name: highwayConfig.name,
-                        humidity: cached.humidity,
-                        timestamp: cached.timestamp,
-                        prevHumidity: cached.prevHumidity,
-                        webcamUrl: highwayConfig.webcamUrl
-                    };
-                }
-
-                return {
-                    name: highwayConfig.name,
-                    humidity: null,
-                    timestamp: new Date(),
-                    prevHumidity: null,
-                    webcamUrl: highwayConfig.webcamUrl
-                };
             }
         }
 
-        function renderHighwayCards(readings) {
-            const grid = document.getElementById('highway-grid');
-            if (!grid) return;
-
-            if (readings.length === 1) {
-                grid.className = "max-w-2xl mx-auto w-full text-left";
-            } else {
-                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left";
+        function applyHumidityOverride() {
+            const input = document.getElementById('admin-override-humidity');
+            if (!input || input.value === '') return;
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val >= 0 && val <= 100) {
+                localStorage.setItem('tift_humidity_override', val);
+                const currentAdaTime = localStorage.getItem('tift_last_adafruit_ts') || '';
+                localStorage.setItem('tift_override_baseline_ts', currentAdaTime);
+                input.value = '';
+                updateOverrideBadge();
+                refreshTelemetry();
+                alert('Humidity set! It will automatically update again as soon as Adafruit IO sends a new reading.');
             }
+        }
 
-            grid.innerHTML = readings.map((item, idx) => {
-                const status = calculateFogStatus(item.humidity, item.timestamp);
-                const humidityDisplay = item.humidity !== null && Number.isFinite(item.humidity)
-                    ? `${item.humidity.toFixed(1)}%`
-                    : '--%';
+        function clearHumidityOverride() {
+            localStorage.removeItem('tift_humidity_override');
+            localStorage.removeItem('tift_override_baseline_ts');
+            updateOverrideBadge();
+            refreshTelemetry();
+        }
 
-                // Trend Calculation
-                let trendIcon = '→';
-                let trendColor = 'text-slate-400';
-                if (item.prevHumidity !== null && item.humidity !== null) {
-                    if (item.humidity > item.prevHumidity + 0.2) {
-                        trendIcon = '↑';
-                        trendColor = 'text-amber-400';
-                    } else if (item.humidity < item.prevHumidity - 0.2) {
-                        trendIcon = '↓';
-                        trendColor = 'text-emerald-400';
+        function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        // Prompt user for location permission right away upon load and when clicking the speed sign
+        function requestGeolocationPermission() {
+            if ('geolocation' in navigator) {
+                if (isSimulationRunning) {
+                    // Turn off simulation and switch back to real GPS
+                    isSimulationRunning = false;
+                    if (simInterval) clearInterval(simInterval);
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        alert(currentLang === 'bg' ? 'Локацията е разрешена успешно! Проследяването на скоростта е активно.' : 'Location permission granted successfully! Live speed tracking is active.');
+                        startGpsWatch();
+                    },
+                    (error) => {
+                        // If permission denied or unavailable, toggle simulated route drive mode as fallback
+                        const useSim = confirm(currentLang === 'bg' 
+                            ? 'Достъпът до локация е отхвърлен или недостъпен. Желаете ли да активирате симулация на движение по АМ Тракия вместо това?'
+                            : 'Location access was denied or unavailable. Would you like to enable Trakia Highway simulation mode instead?');
+                        if (useSim) {
+                            toggleSpeedSimulationMode();
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+
+        function startGpsWatch() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        if (isSimulationRunning) return;
+                        const speedMps = position.coords.speed;
+                        if (speedMps !== null && speedMps >= 0) {
+                            currentGpsSpeedKmH = Math.round(speedMps * 3.6);
+                        } else if (lastGpsPos) {
+                            const dtSec = (position.timestamp - lastGpsPos.timestamp) / 1000;
+                            if (dtSec > 0.5) {
+                                const distM = calculateDistanceMeters(
+                                    lastGpsPos.lat, lastGpsPos.lon,
+                                    position.coords.latitude, position.coords.longitude
+                                );
+                                currentGpsSpeedKmH = Math.round((distM / dtSec) * 3.6);
+                            }
+                        } else {
+                            currentGpsSpeedKmH = 0;
+                        }
+                        lastGpsPos = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            timestamp: position.timestamp
+                        };
+                        updateGpsSpeedSign();
+                    },
+                    (error) => {
+                        console.warn('GPS watch error:', error.message);
+                    },
+                    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+                );
+            }
+        }
+
+        function toggleSpeedSimulationMode() {
+            isSimulationRunning = !isSimulationRunning;
+            const widgetEl = document.getElementById('gps-sign-widget');
+
+            if (isSimulationRunning) {
+                if (widgetEl) widgetEl.title = "Simulation Active: Moving along Trakia Highway";
+                simLat = 42.25;
+                simLon = 24.30;
+                simLastTime = Date.now();
+
+                if (simInterval) clearInterval(simInterval);
+                simInterval = setInterval(() => {
+                    const now = Date.now();
+                    const dtSec = (now - simLastTime) / 1000;
+                    simLastTime = now;
+
+                    const speedMps = (95 * 1000) / 3600; 
+                    const distMovedMeters = speedMps * dtSec;
+                    const metersPerDegLon = 82000; 
+                    simLon += distMovedMeters / metersPerDegLon;
+
+                    currentGpsSpeedKmH = 95 + Math.floor(Math.random() * 6 - 3);
+                    updateGpsSpeedSign();
+                }, 1000);
+            } else {
+                if (simInterval) clearInterval(simInterval);
+                if (widgetEl) widgetEl.title = "Click to Request GPS / Enable Tracking";
+                currentGpsSpeedKmH = 0;
+                updateGpsSpeedSign();
+            }
+        }
+
+        function updateGpsSpeedSign() {
+            const speedNumEl = document.getElementById('gps-speed-num');
+            const widgetEl = document.getElementById('gps-sign-widget');
+            if (!speedNumEl || !widgetEl) return;
+
+            speedNumEl.textContent = currentGpsSpeedKmH;
+            if (currentGpsSpeedKmH > globalMaxSpeedLimit) {
+                widgetEl.style.borderColor = '#EF4444';
+            } else {
+                widgetEl.style.borderColor = '#10B981';
+            }
+        }
+
+        function setFilter(mode) {
+            currentFilter = mode;
+            ['ALL', 'FOG', 'CLEAR'].forEach(m => {
+                const btn = document.getElementById(`filter-btn-${m}`);
+                if (btn) {
+                    if (m === mode) {
+                        btn.className = 'px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 transition-all cursor-pointer font-bold shadow-sm';
+                    } else {
+                        btn.className = 'px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer';
                     }
                 }
+            });
+            refreshTelemetry();
+        }
 
-                const fogCloudMarkup = status.hasFog ? `
-                    <div class="absolute inset-0 pointer-events-none overflow-hidden" style="opacity: ${status.fogOpacity};">
-                        <div class="fog-cloud-bank-1 absolute inset-y-0 left-0 flex items-center">
-                            <div class="w-1/2 h-full" style="background:
-                                radial-gradient(ellipse 35% 55% at 15% 45%, ${status.fogColor} 0%, transparent 70%),
-                                radial-gradient(ellipse 40% 65% at 45% 35%, ${status.fogColor} 0%, transparent 75%),
-                                radial-gradient(ellipse 38% 55% at 75% 50%, ${status.fogColor} 0%, transparent 70%),
-                                radial-gradient(ellipse 30% 50% at 95% 40%, ${status.fogColor} 0%, transparent 65%);">
-                            </div>
-                            <div class="w-1/2 h-full" style="background:
-                                radial-gradient(ellipse 35% 55% at 15% 45%, ${status.fogColor} 0%, transparent 70%),
-                                radial-gradient(ellipse 40% 65% at 45% 35%, ${status.fogColor} 0%, transparent 75%),
-                                radial-gradient(ellipse 38% 55% at 75% 50%, ${status.fogColor} 0%, transparent 70%),
-                                radial-gradient(ellipse 30% 50% at 95% 40%, ${status.fogColor} 0%, transparent 65%);">
-                            </div>
-                        </div>
-                        <div class="fog-cloud-bank-2 absolute inset-y-0 left-0 flex items-center">
-                            <div class="w-1/2 h-full" style="background:
-                                radial-gradient(ellipse 32% 45% at 22% 62%, ${status.fogColor} 0%, transparent 68%),
-                                radial-gradient(ellipse 42% 50% at 58% 58%, ${status.fogColor} 0%, transparent 72%),
-                                radial-gradient(ellipse 34% 48% at 88% 65%, ${status.fogColor} 0%, transparent 68%);">
-                            </div>
-                            <div class="w-1/2 h-full" style="background:
-                                radial-gradient(ellipse 32% 45% at 22% 62%, ${status.fogColor} 0%, transparent 68%),
-                                radial-gradient(ellipse 42% 50% at 58% 58%, ${status.fogColor} 0%, transparent 72%),
-                                radial-gradient(ellipse 34% 48% at 88% 65%, ${status.fogColor} 0%, transparent 68%);">
-                            </div>
-                        </div>
-                    </div>
-                ` : '';
+        function changePollSpeed(ms) {
+            PROGRAMMER_CONFIG.POLL_INTERVAL_MS = parseInt(ms, 10);
+            if (pollIntervalTimer) clearInterval(pollIntervalTimer);
+            pollIntervalTimer = setInterval(refreshTelemetry, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
+        }
 
-                const isOpen = !!openCameraTabs[idx];
-                const safeWebcamUrl = escapeHTML(item.webcamUrl || '');
+        function unlockAudioContext() {
+            if (!sharedAudioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) sharedAudioCtx = new AudioCtx();
+            }
+            if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+                sharedAudioCtx.resume();
+            }
+        }
 
-                // In-Page Mini Tab ("See Live Camera" toggle + embedded viewer)
-                const cameraSectionMarkup = item.webcamUrl ? `
-                    <div class="flex flex-col gap-3">
-                        <button type="button"
-                                onclick="toggleCameraTab(${idx})"
-                                class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 active:scale-[0.99] text-sky-300 hover:text-white border border-sky-500/40 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            <span id="camera-btn-label-${idx}">${isOpen ? 'Hide Live Camera' : 'See Live Camera'}</span>
-                        </button>
+        function toggleAudioAlert() {
+            unlockAudioContext();
+            audioAlertEnabled = !audioAlertEnabled;
+            const btn = document.getElementById('sound-toggle-btn');
+            if (btn) {
+                btn.innerHTML = audioAlertEnabled 
+                    ? `🔔 <span>${currentLang === 'bg' ? 'Звук: ВКЛ' : 'Sound: ON'}</span>`
+                    : `🔕 <span>${currentLang === 'bg' ? 'Звук: ИЗКЛ' : 'Sound: OFF'}</span>`;
+            }
+            if (audioAlertEnabled) playFogAlertBeep(true);
+        }
 
-                        <!-- Embedded Mini Tab Container -->
-                        <div id="camera-panel-${idx}" class="${isOpen ? '' : 'hidden'} rounded-xl overflow-hidden border border-[#1E293B] bg-[#0B1120] shadow-inner">
-                            <div class="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-[#1E293B] text-[11px] font-mono">
-                                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    Live Camera View &bull; Updates every 60s
-                                </span>
-                                <a href="${safeWebcamUrl}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">
-                                    Full Tab &nearr;
-                                </a>
-                            </div>
-                            <div class="relative w-full h-72 sm:h-80 bg-slate-950">
-                                <iframe
-                                    id="camera-iframe-${idx}"
-                                    data-src="${safeWebcamUrl}"
-                                    ${isOpen ? `src="${safeWebcamUrl}"` : ''}
-                                    class="w-full h-full border-0"
-                                    loading="lazy"
-                                    title="Live Highway Camera">
-                                </iframe>
-                            </div>
-                        </div>
-                    </div>
-                ` : '';
+        function playFogAlertBeep(forceImmediate = false) {
+            if (!audioAlertEnabled) return;
+            const now = Date.now();
+            if (!forceImmediate && now - lastBeepTime < 15000) return;
+            lastBeepTime = now;
+            try {
+                unlockAudioContext();
+                if (!sharedAudioCtx) return;
+
+                const t = sharedAudioCtx.currentTime;
+                const osc = sharedAudioCtx.createOscillator();
+                const gain = sharedAudioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(660, t);
+                osc.frequency.setValueAtTime(880, t + 0.14);
+
+                gain.gain.setValueAtTime(0.18, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+
+                osc.connect(gain);
+                gain.connect(sharedAudioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.38);
+            } catch (e) {
+                console.warn('Audio playback error:', e);
+            }
+        }
+
+        function publishBroadcast() {
+            const input = document.getElementById('custom-broadcast-input');
+            if (!input) return;
+            const msg = input.value.trim();
+            if (msg) {
+                localStorage.setItem('tift_active_broadcast', msg);
+                input.value = '';
+                checkActiveBroadcast();
+                alert(currentLang === 'bg' ? 'Съобщението е успешно публикувано!' : 'Broadcast message published successfully!');
+            }
+        }
+
+        function deleteBroadcastCompletely() {
+            localStorage.setItem('tift_active_broadcast', '');
+            checkActiveBroadcast();
+            alert(currentLang === 'bg' ? 'Излъчването беше изтрито и скрито.' : 'Broadcast message was deleted and hidden.');
+        }
+
+        function clearBroadcast() {
+            deleteBroadcastCompletely();
+        }
+
+        function checkActiveBroadcast() {
+            const ticker = document.getElementById('emergency-ticker');
+            const textEl = document.getElementById('ticker-text');
+            const clearBtn = document.getElementById('dismiss-broadcast-btn');
+            let savedMsg = localStorage.getItem('tift_active_broadcast');
+            const isAdmin = localStorage.getItem('tift_admin_logged') === 'true';
+
+            if (savedMsg === null) {
+                savedMsg = currentLang === 'bg' 
+                    ? 'ВНИМАНИЕ: Опасност от гъста мъгла на АМ Тракия. Спазвайте дистанция и намалете скоростта!'
+                    : 'WARNING: Dense fog hazard reported on Trakia Highway. Maintain distance and reduce speed!';
+                localStorage.setItem('tift_active_broadcast', savedMsg);
+            }
+
+            if (!savedMsg || savedMsg.trim() === '') {
+                if (ticker) ticker.classList.add('hidden');
+            } else {
+                if (textEl) textEl.textContent = savedMsg;
+                if (ticker) ticker.classList.remove('hidden');
+            }
+
+            if (clearBtn && isAdmin) {
+                clearBtn.classList.remove('hidden');
+            }
+        }
+
+        function openAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            if (modal) modal.classList.remove('hidden-modal');
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            const feedback = document.getElementById('admin-feedback');
+            if (feedback) feedback.classList.add('hidden');
+            if (modal) modal.classList.add('hidden-modal');
+        }
+
+        async function openHistoryModal(highwayIndex) {
+            const modal = document.getElementById('history-modal');
+            const titleEl = document.getElementById('history-modal-title');
+            const svgEl = document.getElementById('history-svg-chart');
+            const listEl = document.getElementById('history-points-list');
+            if (!modal || !svgEl || !listEl) return;
+
+            const hwConfig = PROGRAMMER_CONFIG.HIGHWAYS[highwayIndex] || PROGRAMMER_CONFIG.HIGHWAYS[0];
+            const highwayName = hwConfig.name;
+
+            titleEl.textContent = `${highwayName} — ${currentLang === 'bg' ? 'История на влажността' : 'Humidity History'}`;
+            listEl.innerHTML = `<div class="text-center text-slate-400 py-4">Loading Adafruit IO history...</div>`;
+            modal.classList.remove('hidden-modal');
+
+            let history = [];
+            try {
+                if (hwConfig.arduinoHistoryUrl) {
+                    const res = await fetch(`${hwConfig.arduinoHistoryUrl}&t=${Date.now()}`, { cache: 'no-store' });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (Array.isArray(data) && data.length > 0) {
+                            history = data.slice(0, 10).reverse().map(item => ({
+                                humidity: parseFloat(item.value),
+                                timestamp: new Date(item.created_at || item.updated_at || Date.now())
+                            })).filter(item => Number.isFinite(item.humidity));
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not fetch live Adafruit history, using local buffer.');
+            }
+
+            const localHist = telemetryHistories[highwayName] || [];
+            if (history.length === 0 && localHist.length > 0) {
+                history = [...localHist];
+            } else if (localHist.length > 0) {
+                const newestLocal = localHist[localHist.length - 1];
+                const newestAda = history[history.length - 1];
+                if (!newestAda || newestLocal.timestamp > newestAda.timestamp) {
+                    history.push(newestLocal);
+                    if (history.length > 10) history.shift();
+                }
+            }
+
+            telemetryHistories[highwayName] = history;
+
+            const width = 540;
+            const height = 220;
+            const padLeft = 36;
+            const padRight = 24;
+            const padTop = 26;
+            const padBottom = 20;
+            const plotW = width - padLeft - padRight;
+            const plotH = height - padTop - padBottom;
+
+            const getY = (val) => padTop + plotH - ((val / 100) * plotH);
+
+            let svgContent = '';
+
+            const thresholds = [
+                { val: 80, color: '#EF4444', label: '80% FOG' },
+                { val: 55, color: '#F59E0B', label: '55% LIKELY' },
+                { val: 30, color: '#38BDF8', label: '30% MIST' }
+            ];
+
+            thresholds.forEach(th => {
+                const ty = getY(th.val);
+                svgContent += `
+                    <line x1="${padLeft}" y1="${ty}" x2="${width - padRight}" y2="${ty}" 
+                          stroke="${th.color}" stroke-width="1" stroke-dasharray="4 4" stroke-opacity="0.55" />
+                    <text x="${padLeft - 4}" y="${ty + 3}" fill="${th.color}" font-family="monospace" font-size="9" font-weight="bold" text-anchor="end">
+                        ${th.val}%
+                    </text>
+                `;
+            });
+
+            if (history.length > 0) {
+                const points = history.map((item, idx) => {
+                    const x = history.length === 1 
+                        ? padLeft + plotW / 2 
+                        : padLeft + (idx / (history.length - 1)) * plotW;
+                    const y = getY(item.humidity);
+                    return { x, y, ...item };
+                });
+
+                for (let i = 0; i < points.length - 1; i++) {
+                    const p1 = points[i];
+                    const p2 = points[i + 1];
+                    const isRising = p2.humidity >= p1.humidity;
+                    const strokeColor = isRising ? '#38BDF8' : '#A855F7';
+                    svgContent += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${strokeColor}" stroke-width="3" stroke-linecap="round" />`;
+                }
+
+                points.forEach(p => {
+                    const labelY = Math.max(14, p.y - 10);
+                    svgContent += `
+                        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#070B14" stroke-width="2" />
+                        <text x="${p.x}" y="${labelY}" fill="#f8fafc" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">
+                            ${p.humidity.toFixed(0)}%
+                        </text>
+                    `;
+                });
+            } else {
+                svgContent += `<text x="270" y="110" fill="#64748b" font-family="monospace" font-size="12" text-anchor="middle">No history recorded yet</text>`;
+            }
+            svgEl.innerHTML = svgContent;
+
+            listEl.innerHTML = history.slice().reverse().map((h, i, arr) => {
+                const prev = arr[i + 1];
+                let diffBadge = '';
+                if (prev) {
+                    const diff = h.humidity - prev.humidity;
+                    if (diff > 0) diffBadge = `<span class="text-[#38BDF8] font-bold">+${diff.toFixed(1)}% ↑</span>`;
+                    else if (diff < 0) diffBadge = `<span class="text-[#A855F7] font-bold">${diff.toFixed(1)}% ↓</span>`;
+                    else diffBadge = `<span class="text-slate-400">0.0% →</span>`;
+                } else {
+                    diffBadge = `<span class="text-slate-500">Oldest</span>`;
+                }
+
+                const timeStr = new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dateStr = new Date(h.timestamp).toLocaleDateString();
 
                 return `
-                    <article class="bg-[#111827] border border-[#1E293B] ${status.accentBorder} rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between gap-6 transition-all text-left relative overflow-hidden">
-                        
-                        <!-- Animated 3D-Perspective Highway & Cars Scene -->
-                        <div class="relative w-full h-36 rounded-xl overflow-hidden border border-[#1E293B] shadow-inner select-none"
-                             style="background: linear-gradient(180deg, ${status.skyTop} 0%, ${status.skyBottom} 52%, #0f172a 52%, #090d16 100%);">
-                            
-                            <!-- Horizon Atmospheric Haze -->
-                            <div class="absolute inset-x-0 top-[42%] h-8 blur-lg transition-colors duration-700"
-                                 style="background-color: ${status.fogColor}; opacity: ${status.hasFog ? 0.65 : 0.12};"></div>
-
-                            <!-- SVG Highway & Cars -->
-                            <svg viewBox="0 0 400 130" class="w-full h-full relative z-10" preserveAspectRatio="xMidYMid slice">
-                                <defs>
-                                    <radialGradient id="headlight-glow-${idx}" cx="50%" cy="50%" r="50%">
-                                        <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
-                                        <stop offset="45%" stop-color="#fde047" stop-opacity="0.45"/>
-                                        <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
-                                    </radialGradient>
-                                    <linearGradient id="road-surface-${idx}" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#1e293b"/>
-                                        <stop offset="100%" stop-color="#090d16"/>
-                                    </linearGradient>
-                                </defs>
-
-                                <!-- Perspective Asphalt Road -->
-                                <polygon points="175,65 225,65 370,130 30,130" fill="url(#road-surface-${idx})" />
-                                <line x1="175" y1="65" x2="35" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
-                                <line x1="225" y1="65" x2="365" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
-                                <line x1="200" y1="65" x2="200" y2="130" stroke="#e2e8f0" stroke-width="2.5" stroke-dasharray="10 14" stroke-opacity="0.7" class="animate-road-dashes" />
-
-                                <!-- Distant Car -->
-                                <g class="animate-car-2" style="opacity: ${status.hasFog ? Math.max(0.3, 1 - status.fogOpacity * 0.65) : 0.95};">
-                                    <ellipse cx="242" cy="88" rx="18" ry="4" fill="url(#headlight-glow-${idx})" />
-                                    <path d="M231,74 L234,68 L250,68 L253,74 Z" fill="#475569" />
-                                    <rect x="229" y="74" width="26" height="8" rx="2" fill="#64748b" />
-                                    <circle cx="233" cy="78" r="2.2" fill="#fef9c3" />
-                                    <circle cx="251" cy="78" r="2.2" fill="#fef9c3" />
-                                    <circle cx="233" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
-                                    <circle cx="251" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
-                                </g>
-
-                                <!-- Foreground Car -->
-                                <g class="animate-car-1">
-                                    <polygon points="103,104 82,130 124,130" fill="url(#headlight-glow-${idx})" />
-                                    <polygon points="145,104 124,130 166,130" fill="url(#headlight-glow-${idx})" />
-                                    <rect x="97" y="108" width="8" height="7" rx="1.5" fill="#020617" />
-                                    <rect x="143" y="108" width="8" height="7" rx="1.5" fill="#020617" />
-                                    <path d="M104,95 L110,83 L138,83 L144,95 Z" fill="#334155" stroke="#94a3b8" stroke-width="0.8" />
-                                    <path d="M107,94 L112,85 L136,85 L141,94 Z" fill="#0f172a" />
-                                    <rect x="96" y="94" width="56" height="15" rx="4" fill="#cbd5e1" />
-                                    <rect x="114" y="99" width="20" height="5" rx="1.5" fill="#1e293b" />
-                                    <circle cx="103" cy="101" r="3.5" fill="#ffffff" />
-                                    <circle cx="145" cy="101" r="3.5" fill="#ffffff" />
-                                    <circle cx="103" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
-                                    <circle cx="145" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
-                                </g>
-                            </svg>
-
-                            <!-- Volumetric Cloud-Like Fog Overlay -->
-                            <div class="absolute inset-0 z-20 pointer-events-none transition-opacity duration-700">
-                                ${fogCloudMarkup}
-                            </div>
-
-                            <!-- Subtle Condition Tag -->
-                            <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-sm px-2.5 py-1 rounded-md border border-slate-700/80">
-                                <span class="w-1.5 h-1.5 rounded-full ${status.dotColor}"></span>
-                                <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-200">
-                                    ${status.hasFog ? 'Fog Active' : 'Clear Road'}
-                                </span>
-                            </div>
+                    <div class="flex items-center justify-between bg-[#070B14] border border-[#1E293B] rounded-xl px-3.5 py-2.5">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-slate-400">${dateStr} ${timeStr}</span>
                         </div>
-
-                        <!-- See Live Camera Button & In-Page Mini Tab -->
-                        ${cameraSectionMarkup}
-
-                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug text-left">
-                                ${escapeHTML(item.name)}
-                            </h2>
-
-                            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-mono font-extrabold tracking-wider border shrink-0 self-start ${status.badgeBg}">
-                                <span class="w-2.5 h-2.5 rounded-full ${status.dotColor}"></span>
-                                ${escapeHTML(status.label)}
-                            </span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-white font-extrabold text-sm">${h.humidity.toFixed(1)}%</span>
+                            ${diffBadge}
                         </div>
-
-                        <div class="bg-[#0B1120]/80 border border-[#1E293B] rounded-xl px-5 py-4 flex items-baseline justify-between text-left">
-                            <div>
-                                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 text-left block">Humidity</span>
-                                <span class="text-xs font-mono ${trendColor} mt-0.5 inline-block">Trend: ${trendIcon}</span>
-                            </div>
-                            <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">
-                                ${escapeHTML(humidityDisplay)}
-                            </span>
-                        </div>
-
-                        <!-- Driver Safety Advice Box -->
-                        <div class="text-xs sm:text-sm text-slate-300 font-medium bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 text-left">
-                            <span class="text-sky-400 font-bold uppercase tracking-wider block mb-1">Safety Advice:</span>
-                            ${escapeHTML(status.advice)}
-                        </div>
-
-                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 font-mono pt-1 border-t border-[#1E293B]/70 text-left">
-                            <span class="uppercase tracking-wider text-slate-500 text-left">Updated</span>
-                            <time datetime="${item.timestamp.toISOString()}" class="text-slate-300 font-medium text-right">
-                                ${escapeHTML(formatDisplayTime(item.timestamp))}
-                            </time>
-                        </div>
-                    </article>
+                    </div>
                 `;
             }).join('');
         }
 
+        function closeHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            if (modal) modal.classList.add('hidden-modal');
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const userIn = document.getElementById('admin-user').value.trim();
+            const passIn = document.getElementById('admin-pass').value.trim();
+            const feedback = document.getElementById('admin-feedback');
+
+            if (userIn === 'adm1' && passIn === 'admin1324') {
+                localStorage.setItem('tift_admin_logged', 'true');
+                closeAdminModal();
+                checkAdminSession();
+                checkActiveBroadcast();
+            } else {
+                if (feedback) {
+                    feedback.textContent = currentLang === 'bg' ? 'Невалидни административни данни.' : 'Invalid administrator credentials.';
+                    feedback.classList.remove('hidden');
+                }
+            }
+        }
+
+        function handleAdminLogout() {
+            localStorage.removeItem('tift_admin_logged');
+            checkAdminSession();
+            checkActiveBroadcast();
+        }
+
+        function checkAdminSession() {
+            const isLoggedIn = localStorage.getItem('tift_admin_logged') === 'true';
+            const statsPanel = document.getElementById('admin-stats-panel');
+            const menuBtn = document.getElementById('admin-menu-btn');
+
+            updateOverrideBadge();
+
+            if (isLoggedIn) {
+                if (statsPanel) statsPanel.classList.remove('hidden');
+                if (menuBtn) menuBtn.innerHTML = `🛡️ <span>${TRANSLATIONS[currentLang].adminActive}</span>`;
+            } else {
+                if (statsPanel) statsPanel.classList.add('hidden');
+                if (menuBtn) menuBtn.innerHTML = `🔐 <span>${TRANSLATIONS[currentLang].adminPortalBtn}</span>`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            applyTranslations();
+            initRealVisitorCounter();
+            checkAdminSession();
+            checkActiveBroadcast();
+
+            // Automatically prompt browser for location permission on page load
+            setTimeout(() => {
+                requestGeolocationPermission();
+            }, 1200);
+
             const introOverlay = document.getElementById('intro-overlay');
             const skipIntroBtn = document.getElementById('skip-intro-btn');
             const introVideo = document.getElementById('intro-video');
@@ -693,8 +1153,563 @@
             }
 
             refreshTelemetry();
-            setInterval(refreshTelemetry, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
+            pollIntervalTimer = setInterval(refreshTelemetry, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
         });
+
+        function toggleCameraTab(idx) {
+            openCameraTabs[idx] = !openCameraTabs[idx];
+            const container = document.getElementById(`camera-panel-${idx}`);
+            const btnLabel = document.getElementById(`camera-btn-label-${idx}`);
+            const iframe = document.getElementById(`camera-iframe-${idx}`);
+
+            if (!container || !btnLabel) return;
+
+            if (openCameraTabs[idx]) {
+                container.classList.remove('hidden');
+                btnLabel.textContent = TRANSLATIONS[currentLang].hideCamera;
+                if (iframe && !iframe.getAttribute('src')) {
+                    iframe.setAttribute('src', iframe.dataset.src);
+                }
+            } else {
+                container.classList.add('hidden');
+                btnLabel.textContent = TRANSLATIONS[currentLang].seeCamera;
+            }
+        }
+
+        function calculateFogStatus(humidity) {
+            const h = Number(humidity);
+            const t = TRANSLATIONS[currentLang];
+
+            if (!Number.isFinite(h)) {
+                return {
+                    label: 'OFFLINE',
+                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
+                    accentBorder: 'border-t-4 border-t-slate-600',
+                    dotColor: 'bg-slate-400',
+                    valueColor: 'text-slate-400',
+                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
+                    visibility: 'Unknown',
+                    recommendedSpeed: '-- km/h',
+                    maxSpeedLimit: 140,
+                    fogOpacity: 0.25,
+                    fogColor: '#64748b',
+                    skyTop: '#070b14',
+                    skyBottom: '#1e293b',
+                    hasFog: false,
+                    isCritical: false
+                };
+            }
+
+            if (h < 30) {
+                return {
+                    label: t.statusClear,
+                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
+                    accentBorder: 'border-t-4 border-t-[#10B981]',
+                    dotColor: 'bg-[#10B981]',
+                    valueColor: 'text-[#10B981]',
+                    advice: t.adviceClear,
+                    visibility: '> 1,000 m',
+                    recommendedSpeed: '140 km/h',
+                    maxSpeedLimit: 140,
+                    fogOpacity: 0,
+                    fogColor: '#10B981',
+                    skyTop: '#051b2c',
+                    skyBottom: '#0e3d52',
+                    hasFog: false,
+                    isCritical: false
+                };
+            }
+            if (h <= 54) {
+                return {
+                    label: t.statusMist,
+                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
+                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
+                    dotColor: 'bg-[#38BDF8]',
+                    valueColor: 'text-[#38BDF8]',
+                    advice: t.adviceMist,
+                    visibility: '500 – 1,000 m',
+                    recommendedSpeed: '110 km/h',
+                    maxSpeedLimit: 110,
+                    fogOpacity: 0.48,
+                    fogColor: '#38BDF8',
+                    skyTop: '#09253d',
+                    skyBottom: '#174f7a',
+                    hasFog: true,
+                    isCritical: false
+                };
+            }
+            if (h <= 79) {
+                return {
+                    label: t.statusFogLikely,
+                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
+                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
+                    dotColor: 'bg-[#F59E0B]',
+                    valueColor: 'text-[#F59E0B]',
+                    advice: t.adviceFogLikely,
+                    visibility: '150 – 500 m',
+                    recommendedSpeed: '80 km/h',
+                    maxSpeedLimit: 80,
+                    fogOpacity: 0.72,
+                    fogColor: '#F59E0B',
+                    skyTop: '#291d0a',
+                    skyBottom: '#664914',
+                    hasFog: true,
+                    isCritical: false
+                };
+            }
+            return {
+                label: t.statusFog,
+                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
+                accentBorder: 'border-t-4 border-t-[#EF4444]',
+                dotColor: 'bg-[#EF4444]',
+                valueColor: 'text-[#EF4444]',
+                advice: t.adviceFog,
+                visibility: '< 150 m',
+                recommendedSpeed: '50 km/h',
+                maxSpeedLimit: 50,
+                fogOpacity: 0.92,
+                fogColor: '#EF4444',
+                skyTop: '#2b0b0b',
+                skyBottom: '#6e1a1a',
+                hasFog: true,
+                isCritical: true
+            };
+        }
+
+        function parseArduinoCloudPayload(data) {
+            if (typeof data === 'number') {
+                return { humidity: data, timestamp: new Date(), rawTs: '' };
+            }
+            if (typeof data === 'string' && !isNaN(parseFloat(data))) {
+                return { humidity: parseFloat(data), timestamp: new Date(), rawTs: '' };
+            }
+            if (data && typeof data === 'object') {
+                const item = Array.isArray(data) ? data[data.length - 1] : data;
+                if (!item || typeof item !== 'object') {
+                    return { humidity: null, timestamp: new Date(), rawTs: '' };
+                }
+
+                const rawVal =
+                    item.value !== undefined ? item.value :
+                    item.last_value !== undefined ? item.last_value :
+                    item.humidity !== undefined ? item.humidity : null;
+
+                const rawTime =
+                    item.created_at ||
+                    item.updated_at ||
+                    item.timestamp ||
+                    item.time || '';
+
+                const parsedHumidity = rawVal !== null ? Number(rawVal) : null;
+                const parsedTime = rawTime ? new Date(rawTime) : new Date();
+
+                return {
+                    humidity: Number.isFinite(parsedHumidity) ? parsedHumidity : null,
+                    timestamp: isNaN(parsedTime.getTime()) ? new Date() : parsedTime,
+                    rawTs: String(rawTime)
+                };
+            }
+            return { humidity: null, timestamp: new Date(), rawTs: '' };
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        function formatDisplayTime(dateObj) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+                return '--:--:--';
+            }
+            return dateObj.toLocaleString([], {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        async function fetchHighwayTelemetry(highwayConfig) {
+            const url = (highwayConfig.arduinoCloudUrl || '').trim();
+            let liveData = null;
+
+            try {
+                const bustUrl = url.includes('?') ? `${url}&_=${Date.now()}` : `${url}?_=${Date.now()}`;
+                const response = await fetch(bustUrl, {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
+
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type') || '';
+                    const payload = contentType.includes('application/json')
+                        ? await response.json()
+                        : await response.text();
+
+                    const parsed = parseArduinoCloudPayload(payload);
+                    if (parsed.humidity !== null && Number.isFinite(parsed.humidity)) {
+                        liveData = parsed;
+                        localStorage.setItem('tift_last_adafruit_ts', parsed.rawTs);
+                    }
+                }
+            } catch (err) {
+                console.warn('Adafruit fetch failed:', err);
+            }
+
+            const overrideVal = localStorage.getItem('tift_humidity_override');
+            const baselineTs = localStorage.getItem('tift_override_baseline_ts') || '';
+
+            if (overrideVal !== null && overrideVal !== '') {
+                if (liveData && liveData.rawTs && liveData.rawTs !== baselineTs) {
+                    localStorage.removeItem('tift_humidity_override');
+                    localStorage.removeItem('tift_override_baseline_ts');
+                    updateOverrideBadge();
+                } else {
+                    const hum = parseFloat(overrideVal);
+                    if (!isNaN(hum)) {
+                        const now = new Date();
+                        const prevRecord = lastKnownReadings[highwayConfig.name];
+                        const prevHumidity = prevRecord ? prevRecord.humidity : hum;
+                        lastKnownReadings[highwayConfig.name] = { humidity: hum, timestamp: now, prevHumidity };
+                        
+                        if (!telemetryHistories[highwayConfig.name]) {
+                            telemetryHistories[highwayConfig.name] = [];
+                        }
+                        const hist = telemetryHistories[highwayConfig.name];
+                        const lastEntry = hist[hist.length - 1];
+                        if (!lastEntry || lastEntry.humidity !== hum) {
+                            hist.push({ humidity: hum, timestamp: now });
+                            if (hist.length > 10) hist.shift();
+                        }
+
+                        const status = calculateFogStatus(hum);
+                        if (status.isCritical) playFogAlertBeep();
+                        globalMaxSpeedLimit = status.maxSpeedLimit;
+                        updateGpsSpeedSign();
+
+                        return {
+                            name: highwayConfig.name,
+                            humidity: hum,
+                            timestamp: now,
+                            prevHumidity,
+                            webcamUrl: highwayConfig.webcamUrl
+                        };
+                    }
+                }
+            }
+
+            if (liveData) {
+                const { humidity, timestamp } = liveData;
+                const prevRecord = lastKnownReadings[highwayConfig.name];
+                const prevHumidity = prevRecord ? prevRecord.humidity : humidity;
+                
+                lastKnownReadings[highwayConfig.name] = { 
+                    humidity, 
+                    timestamp, 
+                    prevHumidity 
+                };
+
+                if (!telemetryHistories[highwayConfig.name]) {
+                    telemetryHistories[highwayConfig.name] = [];
+                }
+                const hist = telemetryHistories[highwayConfig.name];
+                const lastEntry = hist[hist.length - 1];
+                if (!lastEntry || lastEntry.humidity !== humidity) {
+                    hist.push({ humidity, timestamp });
+                    if (hist.length > 10) hist.shift();
+                }
+
+                const status = calculateFogStatus(humidity);
+                if (status.isCritical) playFogAlertBeep();
+                globalMaxSpeedLimit = status.maxSpeedLimit;
+                updateGpsSpeedSign();
+
+                return { 
+                    name: highwayConfig.name, 
+                    humidity, 
+                    timestamp, 
+                    prevHumidity, 
+                    webcamUrl: highwayConfig.webcamUrl 
+                };
+            }
+
+            if (lastKnownReadings[highwayConfig.name]) {
+                const cached = lastKnownReadings[highwayConfig.name];
+                const status = calculateFogStatus(cached.humidity);
+                if (status.isCritical) playFogAlertBeep();
+                globalMaxSpeedLimit = status.maxSpeedLimit;
+                updateGpsSpeedSign();
+
+                return {
+                    name: highwayConfig.name,
+                    humidity: cached.humidity,
+                    timestamp: cached.timestamp,
+                    prevHumidity: cached.prevHumidity,
+                    webcamUrl: cached.webcamUrl
+                };
+            }
+
+            const demoVal = highwayConfig.demoHumidity || 50;
+            if (!telemetryHistories[highwayConfig.name]) {
+                telemetryHistories[highwayConfig.name] = [{ humidity: demoVal, timestamp: new Date() }];
+            }
+
+            const status = calculateFogStatus(demoVal);
+            if (status.isCritical) playFogAlertBeep();
+            globalMaxSpeedLimit = status.maxSpeedLimit;
+            updateGpsSpeedSign();
+
+            return {
+                name: highwayConfig.name,
+                humidity: demoVal,
+                timestamp: new Date(),
+                prevHumidity: null,
+                webcamUrl: highwayConfig.webcamUrl
+            };
+        }
+
+        function renderHighwayCards(readings) {
+            const grid = document.getElementById('highway-grid');
+            const summaryAvgEl = document.getElementById('summary-avg-humidity');
+            const t = TRANSLATIONS[currentLang];
+            if (!grid) return;
+
+            let totalHumidity = 0;
+            let validCount = 0;
+
+            readings.forEach(item => {
+                if (item.humidity !== null && Number.isFinite(item.humidity)) {
+                    totalHumidity += item.humidity;
+                    validCount++;
+                }
+            });
+
+            if (validCount > 0 && summaryAvgEl) {
+                summaryAvgEl.textContent = `${(totalHumidity / validCount).toFixed(1)}%`;
+            }
+
+            const filteredReadings = readings.filter(item => {
+                const status = calculateFogStatus(item.humidity);
+                if (currentFilter === 'FOG') return status.hasFog;
+                if (currentFilter === 'CLEAR') return !status.hasFog;
+                return true;
+            });
+
+            if (filteredReadings.length === 0) {
+                grid.className = "max-w-2xl mx-auto w-full text-center py-12";
+                grid.innerHTML = `<div class="p-6 bg-[#0E1626] border border-[#1E293B] rounded-2xl text-slate-400 font-mono text-sm shadow-xl">No highway segments match the selected filter.</div>`;
+                return;
+            }
+
+            if (filteredReadings.length === 1) {
+                grid.className = "max-w-2xl mx-auto w-full text-left";
+            } else {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left";
+            }
+
+            grid.innerHTML = filteredReadings.map((item, idx) => {
+                const status = calculateFogStatus(item.humidity);
+
+                const humidityDisplay = item.humidity !== null && Number.isFinite(item.humidity)
+                    ? `${item.humidity.toFixed(1)}%`
+                    : '--%';
+
+                let trendIcon = '→';
+                let trendColor = 'text-slate-400';
+                if (item.prevHumidity !== null && item.humidity !== null) {
+                    if (item.humidity > item.prevHumidity + 0.2) {
+                        trendIcon = '↑';
+                        trendColor = 'text-amber-400';
+                    } else if (item.humidity < item.prevHumidity - 0.2) {
+                        trendIcon = '↓';
+                        trendColor = 'text-emerald-400';
+                    }
+                }
+
+                const fogCloudMarkup = status.hasFog ? `
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden" style="opacity: ${status.fogOpacity};">
+                        <div class="fog-cloud-bank-1 absolute inset-y-0 left-0 flex items-center">
+                            <div class="w-1/2 h-full" style="background:
+                                radial-gradient(ellipse 35% 55% at 15% 45%, ${status.fogColor} 0%, transparent 70%),
+                                radial-gradient(ellipse 40% 65% at 45% 35%, ${status.fogColor} 0%, transparent 75%),
+                                radial-gradient(ellipse 38% 55% at 75% 50%, ${status.fogColor} 0%, transparent 70%),
+                                radial-gradient(ellipse 30% 50% at 95% 40%, ${status.fogColor} 0%, transparent 65%);">
+                            </div>
+                        </div>
+                        <div class="fog-cloud-bank-2 absolute inset-y-0 left-0 flex items-center">
+                            <div class="w-1/2 h-full" style="background:
+                                radial-gradient(ellipse 32% 45% at 22% 62%, ${status.fogColor} 0%, transparent 68%),
+                                radial-gradient(ellipse 42% 50% at 58% 58%, ${status.fogColor} 0%, transparent 72%);">
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                const isOpen = !!openCameraTabs[idx];
+                const safeWebcamUrl = escapeHTML(item.webcamUrl || '');
+
+                const cameraSectionMarkup = item.webcamUrl ? `
+                    <div class="flex flex-col gap-3">
+                        <button type="button"
+                                onclick="toggleCameraTab(${idx})"
+                                class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 active:scale-[0.99] text-sky-300 hover:text-white border border-sky-500/40 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span id="camera-btn-label-${idx}">${isOpen ? t.hideCamera : t.seeCamera}</span>
+                        </button>
+
+                        <button type="button"
+                                onclick="openHistoryModal(${idx})"
+                                class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 active:scale-[0.99] text-indigo-300 hover:text-white border border-indigo-500/40 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                            ${t.viewHistoryBtn}
+                        </button>
+
+                        <div id="camera-panel-${idx}" class="${isOpen ? '' : 'hidden'} rounded-xl overflow-hidden border border-[#1E293B] bg-[#070B14] shadow-inner">
+                            <div class="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-[#1E293B] text-[11px] font-mono">
+                                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    ${t.liveCameraHeader}
+                                </span>
+                                <a href="${safeWebcamUrl}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">
+                                    ${t.fullTab}
+                                </a>
+                            </div>
+                            <div class="relative w-full h-72 sm:h-80 bg-slate-950">
+                                <iframe
+                                    id="camera-iframe-${idx}"
+                                    data-src="${safeWebcamUrl}"
+                                    ${isOpen ? `src="${safeWebcamUrl}"` : ''}
+                                    class="w-full h-full border-0"
+                                    loading="lazy"
+                                    title="Live Highway Camera">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                return `
+                    <article class="bg-[#0E1626] border border-[#1E293B] ${status.accentBorder} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between gap-6 transition-all text-left relative overflow-hidden group hover:border-slate-700">
+                        
+                        <!-- Animated 3D-Perspective Highway & Cars Scene -->
+                        <div class="relative w-full h-36 rounded-2xl overflow-hidden border border-[#1E293B] shadow-inner select-none"
+                             style="background: linear-gradient(180deg, ${status.skyTop} 0%, ${status.skyBottom} 52%, #0e1626 52%, #070b14 100%);">
+                            
+                            <div class="absolute inset-x-0 top-[42%] h-8 blur-lg transition-colors duration-700"
+                                 style="background-color: ${status.fogColor}; opacity: ${status.hasFog ? 0.65 : 0.12};"></div>
+
+                            <svg viewBox="0 0 400 130" class="w-full h-full relative z-10" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <radialGradient id="headlight-glow-${idx}" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+                                        <stop offset="45%" stop-color="#fde047" stop-opacity="0.45"/>
+                                        <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="road-surface-${idx}" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#1e293b"/>
+                                        <stop offset="100%" stop-color="#070b14"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <polygon points="175,65 225,65 370,130 30,130" fill="url(#road-surface-${idx})" />
+                                <line x1="175" y1="65" x2="35" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
+                                <line x1="225" y1="65" x2="365" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
+                                <line x1="200" y1="65" x2="200" y2="130" stroke="#e2e8f0" stroke-width="2.5" stroke-dasharray="10 14" stroke-opacity="0.7" class="animate-road-dashes" />
+
+                                <g class="animate-car-2" style="opacity: ${status.hasFog ? Math.max(0.3, 1 - status.fogOpacity * 0.65) : 0.95};">
+                                    <ellipse cx="242" cy="88" rx="18" ry="4" fill="url(#headlight-glow-${idx})" />
+                                    <path d="M231,74 L234,68 L250,68 L253,74 Z" fill="#475569" />
+                                    <rect x="229" y="74" width="26" height="8" rx="2" fill="#64748b" />
+                                    <circle cx="233" cy="78" r="2.2" fill="#fef9c3" />
+                                    <circle cx="251" cy="78" r="2.2" fill="#fef9c3" />
+                                    <circle cx="233" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
+                                    <circle cx="251" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
+                                </g>
+
+                                <g class="animate-car-1">
+                                    <polygon points="103,104 82,130 124,130" fill="url(#headlight-glow-${idx})" />
+                                    <polygon points="145,104 124,130 166,130" fill="url(#headlight-glow-${idx})" />
+                                    <rect x="97" y="108" width="8" height="7" rx="1.5" fill="#020617" />
+                                    <rect x="143" y="108" width="8" height="7" rx="1.5" fill="#020617" />
+                                    <path d="M104,95 L110,83 L138,83 L144,95 Z" fill="#334155" stroke="#94a3b8" stroke-width="0.8" />
+                                    <path d="M107,94 L112,85 L136,85 L141,94 Z" fill="#070b14" />
+                                    <rect x="96" y="94" width="56" height="15" rx="4" fill="#cbd5e1" />
+                                    <rect x="114" y="99" width="20" height="5" rx="1.5" fill="#1e293b" />
+                                    <circle cx="103" cy="101" r="3.5" fill="#ffffff" />
+                                    <circle cx="145" cy="101" r="3.5" fill="#ffffff" />
+                                    <circle cx="103" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
+                                    <circle cx="145" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
+                                </g>
+                            </svg>
+
+                            <div class="absolute inset-0 z-20 pointer-events-none transition-opacity duration-700">
+                                ${fogCloudMarkup}
+                            </div>
+
+                            <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700/80 shadow-md">
+                                <span class="w-2 h-2 rounded-full ${status.dotColor}"></span>
+                                <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-200">
+                                    ${status.hasFog ? t.fogActive : t.clearRoad}
+                                </span>
+                            </div>
+                        </div>
+
+                        ${cameraSectionMarkup}
+
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug text-left">
+                                ${escapeHTML(item.name)}
+                            </h2>
+
+                            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-extrabold tracking-wider border shrink-0 self-start shadow-sm ${status.badgeBg}">
+                                <span class="w-2.5 h-2.5 rounded-full ${status.dotColor}"></span>
+                                ${escapeHTML(status.label)}
+                            </span>
+                        </div>
+
+                        <!-- Read-Only Humidity Display -->
+                        <div class="bg-[#070B14]/80 border border-[#1E293B] rounded-2xl px-5 py-4 flex items-baseline justify-between text-left shadow-inner">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 text-left block">${t.humidityTitle}</span>
+                                <span class="text-xs font-mono ${trendColor} mt-0.5 inline-block font-bold">${t.trendLabel}: ${trendIcon}</span>
+                            </div>
+                            <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">
+                                ${escapeHTML(humidityDisplay)}
+                            </span>
+                        </div>
+
+                        <!-- Estimated Visibility & Safe Speed Metrics -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[#070B14]/60 border border-[#1E293B] rounded-2xl p-4 text-left shadow-inner">
+                                <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold">${t.estVisibility}</span>
+                                <span class="text-sm sm:text-base font-mono font-bold text-slate-100 mt-1 block">${escapeHTML(status.visibility)}</span>
+                            </div>
+                            <div class="bg-[#070B14]/60 border border-[#1E293B] rounded-2xl p-4 text-left shadow-inner">
+                                <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold">${t.safeSpeed}</span>
+                                <span class="text-sm sm:text-base font-mono font-bold ${status.valueColor} mt-1 block">${escapeHTML(status.recommendedSpeed)}</span>
+                            </div>
+                        </div>
+
+                        <!-- Driver Safety Advice Box -->
+                        <div class="text-xs sm:text-sm text-slate-300 font-medium bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-left shadow-sm">
+                            <span class="text-sky-400 font-bold uppercase tracking-wider block mb-1">${t.safetyAdvice}</span>
+                            ${escapeHTML(status.advice)}
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 font-mono pt-2 border-t border-[#1E293B]/70 text-left">
+                            <span class="uppercase tracking-wider text-slate-500 text-left">${t.updatedLabel}</span>
+                            <time datetime="${item.timestamp.toISOString()}" class="text-slate-300 font-medium text-right">
+                                ${escapeHTML(formatDisplayTime(item.timestamp))}
+                            </time>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
 
         async function refreshTelemetry() {
             const results = await Promise.all(
