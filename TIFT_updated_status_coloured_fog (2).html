@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="bg" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIFT | The Invincible Fog Technology</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        board: {
+                            bg: '#070B14',
+                            card: '#0E1626',
+                            border: '#1E293B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.85); opacity: 0.85; }
+            100% { transform: scale(2.6); opacity: 0; }
+        }
+        .live-pulse::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            background-color: #10B981;
+            animation: pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes road-scroll {
+            0% { stroke-dashoffset: 24; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .animate-road-dashes {
+            animation: road-scroll 0.55s linear infinite;
+        }
+
+        @keyframes car-bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-1.5px); }
+        }
+        .animate-car-1 {
+            animation: car-bounce 1.2s ease-in-out infinite;
+        }
+        .animate-car-2 {
+            animation: car-bounce 1.5s ease-in-out infinite 0.4s;
+        }
+
+        @keyframes cloud-patch-drift-1 {
+            0% { transform: translateX(-25%) translateY(1px); }
+            50% { transform: translateX(20%) translateY(-3px); }
+            100% { transform: translateX(-25%) translateY(1px); }
+        }
+        @keyframes cloud-patch-drift-2 {
+            0% { transform: translateX(15%) translateY(-2px); }
+            50% { transform: translateX(-20%) translateY(3px); }
+            100% { transform: translateX(15%) translateY(-2px); }
+        }
+        .cloud-patch-1 {
+            width: 75%;
+            height: 50%;
+            animation: cloud-patch-drift-1 10s ease-in-out infinite;
+        }
+        .cloud-patch-2 {
+            width: 70%;
+            height: 45%;
+            animation: cloud-patch-drift-2 8s ease-in-out infinite;
+        }
+
+        /* Status-coloured animated fog wisps */
+        @keyframes fog-wisp-drift-a {
+            0% { transform: translate3d(-18%, 8%, 0) scale(0.92); }
+            50% { transform: translate3d(16%, -5%, 0) scale(1.08); }
+            100% { transform: translate3d(-18%, 8%, 0) scale(0.92); }
+        }
+        @keyframes fog-wisp-drift-b {
+            0% { transform: translate3d(15%, -6%, 0) scale(1.05); }
+            50% { transform: translate3d(-14%, 7%, 0) scale(0.94); }
+            100% { transform: translate3d(15%, -6%, 0) scale(1.05); }
+        }
+        .cloud-patch-1::before,
+        .cloud-patch-1::after,
+        .cloud-patch-2::before,
+        .cloud-patch-2::after {
+            content: '';
+            position: absolute;
+            inset: -35%;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .cloud-patch-1::before {
+            background: radial-gradient(ellipse at 35% 50%,
+                color-mix(in srgb, var(--fog-color) 68%, transparent) 0%,
+                color-mix(in srgb, var(--fog-color) 38%, transparent) 34%,
+                transparent 72%);
+            filter: blur(13px);
+            animation: fog-wisp-drift-a 12s ease-in-out infinite;
+        }
+        .cloud-patch-1::after {
+            inset: 5% -55%;
+            background: radial-gradient(ellipse at 50% 50%,
+                color-mix(in srgb, var(--fog-color) 48%, transparent) 0%,
+                transparent 70%);
+            filter: blur(17px);
+            animation: fog-wisp-drift-b 16s ease-in-out infinite;
+        }
+        .cloud-patch-2::before {
+            background: radial-gradient(ellipse at 60% 45%,
+                color-mix(in srgb, var(--fog-color) 62%, transparent) 0%,
+                color-mix(in srgb, var(--fog-color) 32%, transparent) 38%,
+                transparent 74%);
+            filter: blur(15px);
+            animation: fog-wisp-drift-b 14s ease-in-out infinite;
+        }
+        .cloud-patch-2::after {
+            inset: -15% -50%;
+            background: radial-gradient(ellipse at 45% 50%,
+                color-mix(in srgb, var(--fog-color) 42%, transparent) 0%,
+                transparent 72%);
+            filter: blur(19px);
+            animation: fog-wisp-drift-a 18s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .cloud-patch-1::before,
+            .cloud-patch-1::after,
+            .cloud-patch-2::before,
+            .cloud-patch-2::after {
+                animation: none;
+            }
+        }
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: #030712;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #intro-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #intro-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #skip-intro-btn {
+            position: absolute;
+            bottom: 28px;
+            right: 28px;
+            padding: 10px 20px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+        }
+        #skip-intro-btn:hover {
+            background: rgba(56, 189, 248, 0.25);
+            transform: translateY(-1px);
+        }
+
+        #admin-modal, #history-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background-color: rgba(3, 7, 18, 0.90);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            transition: opacity 0.3s ease;
+        }
+        #admin-modal.hidden-modal, #history-modal.hidden-modal {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-[#070B14] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500/30 selection:text-sky-200">
+    <svg class="hidden" width="0" height="0" aria-hidden="true">
+        <defs>
+            <filter id="realistic-cloud-fog" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.02 0.035" numOctaves="4" seed="18" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- Intro Video Splash Screen -->
+    <div id="intro-overlay">
+        <video
+            id="intro-video"
+            src="inv.mp4"
+            autoplay
+            muted
+            playsinline
+        ></video>
+        <button id="skip-intro-btn" type="button">SKIP INTRO &rarr;</button>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-modal" class="hidden-modal">
+        <div class="bg-[#0E1626] border border-amber-500/40 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl shadow-amber-500/10 text-left">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 font-bold font-mono">
+                        ADM
+                    </div>
+                    <div>
+                        <h2 data-i18n="adminModalTitle" class="text-xl font-bold text-white tracking-tight">Admin Portal Login</h2>
+                        <p data-i18n="adminModalSub" class="text-xs text-slate-400">Restricted access for system administrators.</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-xl font-mono cursor-pointer">&times;</button>
+            </div>
+
+            <form id="admin-form" onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label data-i18n="adminUserLabel" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Admin Username</label>
+                    <input type="text" id="admin-user" required placeholder="Enter username" 
+                           class="w-full bg-[#070B14] border border-[#1E293B] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div>
+                    <label data-i18n="adminPassLabel" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Admin Password</label>
+                    <input type="password" id="admin-pass" required placeholder="••••••••" 
+                           class="w-full bg-[#070B14] border border-[#1E293B] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+
+                <div id="admin-feedback" class="hidden p-3 rounded-xl text-xs font-mono border bg-red-500/15 text-red-300 border-red-500/40"></div>
+
+                <button type="submit" data-i18n="adminSubmitBtn"
+                        class="w-full mt-2 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl font-mono text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-500/20 transition-all cursor-pointer">
+                    Authenticate Admin &rarr;
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Chart Modal with % Over Every Point & Status Borders -->
+    <div id="history-modal" class="hidden-modal">
+        <div class="bg-[#0E1626] border border-sky-500/40 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl text-left">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#1E293B]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 font-bold font-mono">
+                        📈
+                    </div>
+                    <div>
+                        <h3 id="history-modal-title" class="text-base font-bold font-mono text-white tracking-tight">Telemetry History</h3>
+                        <p class="text-xs text-slate-400">Humidity timeline with exact values over each point & status borders</p>
+                    </div>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white text-xl font-mono cursor-pointer">&times;</button>
+            </div>
+
+            <!-- SVG Line Diagram with Threshold Status Regions -->
+            <div class="bg-[#070B14] border border-[#1E293B] rounded-2xl p-4 mb-4 relative overflow-hidden">
+                <div class="flex flex-wrap items-center justify-between text-[10px] font-mono text-slate-400 mb-3 gap-2">
+                    <span class="text-red-400 font-bold">🔴 Fog Zone (>80%)</span>
+                    <span class="text-amber-400 font-bold">🟡 Likely (55-80%)</span>
+                    <span class="text-sky-400 font-bold">🔵 Mist (30-55%)</span>
+                    <span class="text-emerald-400 font-bold">🟢 Clear (<30%)</span>
+                </div>
+                <div class="w-full h-64 relative">
+                    <svg id="history-svg-chart" viewBox="0 0 540 220" class="w-full h-full overflow-visible">
+                        <!-- Rendered via JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <!-- List of Data Points -->
+            <div id="history-points-list" class="space-y-2 max-h-48 overflow-y-auto pr-1 font-mono text-xs">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Top Navigation -->
+    <div class="sticky top-0 z-30 shadow-2xl">
+        <header class="border-b border-[#1E293B] bg-[#070B14]/95 backdrop-blur-md">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/25 shrink-0 overflow-hidden border border-sky-400/30">
+                        <img 
+                            src="https://uploads.onecompiler.io/44n6r8jp7/1795015829900/0-02-05-a5afb4b2ee708a7328270b8a87dd4584172d317e45788848d3e5eb213af00343_420ff103f4ebd2b7.jpg"
+                            alt="TIFT Logo"
+                            class="w-full h-full object-cover"
+                        >
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-extrabold tracking-tight text-white font-mono leading-none text-left flex items-center gap-2">
+                            TIFT <span class="text-[9px] bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded-full font-sans uppercase tracking-widest font-bold">Pro</span>
+                        </h1>
+                        <p data-i18n="subtitleTag" class="text-[11px] text-slate-400 font-medium mt-1 text-left">The Invincible Fog Technology</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button type="button" onclick="requestGeolocationPermission()" id="gps-sign-widget" class="relative w-14 h-14 rounded-full bg-white border-[6px] border-emerald-500 flex flex-col items-center justify-center shadow-lg font-mono shrink-0 transition-colors duration-300 cursor-pointer" title="Click to Request GPS / Enable Tracking">
+                        <span id="gps-speed-num" class="text-base font-extrabold text-slate-900 leading-none">0</span>
+                        <span class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">km/h</span>
+                    </button>
+
+                    <button type="button" onclick="toggleLanguage()"
+                            class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-sky-300 font-bold tracking-wider transition-colors cursor-pointer"
+                            title="Switch Language BG / EN">
+                        🌐 <span id="current-lang-label">BG</span>
+                    </button>
+
+                    <button type="button" id="sound-toggle-btn" onclick="toggleAudioAlert()"
+                            class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-slate-300 transition-colors cursor-pointer">
+                        🔕 <span data-i18n="soundOff">Sound: OFF</span>
+                    </button>
+
+                    <button type="button" onclick="refreshTelemetry()"
+                            class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-sky-400 hover:text-sky-300 transition-colors cursor-pointer">
+                        ↻ <span data-i18n="refreshBtn">Refresh</span>
+                    </button>
+
+                    <button type="button" id="admin-menu-btn" onclick="openAdminModal()"
+                            class="bg-amber-500/15 hover:bg-amber-500/25 px-3 py-1.5 rounded-xl border border-amber-500/40 text-xs font-mono text-amber-300 font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-md">
+                        🔐 <span data-i18n="adminPortalBtn">Admin Portal</span>
+                    </button>
+
+                    <div class="flex items-center gap-2 bg-[#0E1626] px-3 py-1.5 rounded-xl border border-[#1E293B]">
+                        <span class="relative flex h-2 w-2 live-pulse">
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                        </span>
+                        <span data-i18n="liveFeed" class="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-300">Live Feed</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Persistent Broadcast Safety Ticker -->
+        <div id="emergency-ticker" class="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 border-b border-red-500 text-white px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-between shadow-2xl">
+            <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap animate-pulse max-w-5xl mx-auto">
+                <span class="bg-black/30 px-2 py-0.5 rounded-md text-[10px] font-extrabold border border-red-400/30">🚨 SYSTEM BROADCAST</span>
+                <span id="ticker-text" class="tracking-wide">ВНИМАНИЕ: Опасност от гъста мъгла на АМ Тракия. Спазвайте дистанция и намалете скоростта!</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-4">
+                <span class="text-[10px] bg-black/40 px-2 py-0.5 rounded text-red-200 border border-red-400/20">TIFT PRIORITY</span>
+                <button id="dismiss-broadcast-btn" onclick="clearBroadcast()" class="hidden text-[10px] bg-black/60 hover:bg-black px-2 py-0.5 rounded text-white cursor-pointer border border-red-400/40" title="Admin Quick Clear">✕ Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col justify-center">
+        
+        <!-- User Feature Toolbar: Status Filter Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 font-mono text-xs shadow-xl">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-slate-400 font-bold uppercase tracking-wider mr-1">Filter:</span>
+                <button onclick="setFilter('ALL')" id="filter-btn-ALL" class="px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 transition-all cursor-pointer font-bold shadow-sm">All Roads</button>
+                <button onclick="setFilter('FOG')" id="filter-btn-FOG" class="px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer">Fog / Risk</button>
+                <button onclick="setFilter('CLEAR')" id="filter-btn-CLEAR" class="px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer">Clear</button>
+            </div>
+            <div class="flex items-center gap-2 text-slate-400">
+                <span>Poll:</span>
+                <select id="poll-speed-select" onchange="changePollSpeed(this.value)" class="bg-[#070B14] border border-slate-700 text-sky-400 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer">
+                    <option value="5000">5s</option>
+                    <option value="15000" selected>15s</option>
+                    <option value="30000">30s</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Live Network Summary Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="activeSensors" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">Active Sensors</span>
+                    <span class="text-lg font-bold font-mono text-emerald-400 mt-1 block">1 Online</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-mono border border-emerald-500/20 shadow-inner">📡</div>
+            </div>
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="avgHumidity" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">Avg Humidity</span>
+                    <span id="summary-avg-humidity" class="text-lg font-bold font-mono text-sky-400 mt-1 block">--%</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-mono border border-sky-500/20 shadow-inner">💧</div>
+            </div>
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="systemMode" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">System Mode</span>
+                    <span class="text-lg font-bold font-mono text-indigo-400 mt-1 block">Cloud Sync</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono border border-indigo-500/20 shadow-inner">⚡</div>
+            </div>
+            <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
+                <div>
+                    <span data-i18n="sessionVisitors" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">Live Visitors</span>
+                    <span id="real-visitor-counter" class="text-lg font-bold font-mono text-amber-400 mt-1 block">Loading...</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-mono border border-amber-500/20 shadow-inner">👥</div>
+            </div>
+        </div>
+
+        <!-- Admin-Only Panel -->
+        <div id="admin-stats-panel" class="hidden mb-8 bg-[#0E1626] border border-amber-500/40 rounded-2xl p-6 shadow-2xl text-left transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 mb-4 border-b border-[#1E293B]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono font-bold text-base shadow-inner border border-amber-500/30">
+                        🛡️
+                    </div>
+                    <div>
+                        <h3 data-i18n="adminPanelTitle" class="text-sm font-bold font-mono text-white uppercase tracking-wider">Administrator Control Panel</h3>
+                        <p class="text-xs text-slate-400">Authenticated as <strong class="text-amber-400">adm1</strong> (Connected to Adafruit IO Cloud Feeds)</p>
+                    </div>
+                </div>
+                <button onclick="handleAdminLogout()" data-i18n="adminLogoutBtn" class="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                    Log Out Admin
+                </button>
+            </div>
+
+            <!-- Admin Cloud Feed Override Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Push Humidity to Feed 'hba' (%)</label>
+                        <span id="override-status-badge" class="hidden text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Cloud Override Active</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="admin-override-humidity" min="0" max="100" placeholder="e.g. 85" 
+                               class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
+                        <button onclick="pushHumidityToAdafruit('hba')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                            Push to Cloud
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold mb-2">Push Visitor Count to Feed 'counter'</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="admin-override-visitors" min="1" placeholder="e.g. 2500" 
+                               class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
+                        <button onclick="pushVisitorToAdafruit('counter')" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Broadcast Management -->
+            <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner">
+                <div>
+                    <span data-i18n="broadcastTitle" class="text-xs font-mono font-bold text-white uppercase tracking-wider block">Persistent Broadcast Message (Feed 'broadcast')</span>
+                    <span data-i18n="broadcastSub" class="text-[11px] text-slate-400">Publish new alerts or completely delete/hide the broadcast.</span>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="custom-broadcast-input" data-i18n-placeholder="broadcastPlaceholder" placeholder="Type warning message..." 
+                           class="bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500 w-full sm:w-64">
+                    <button onclick="pushBroadcastToAdafruit('broadcast')" data-i18n="publishBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer shadow-md">
+                        Publish
+                    </button>
+                    <button onclick="deleteBroadcastCompletely('broadcast')" data-i18n="deleteBroadcastBtn" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-mono text-xs uppercase rounded-xl transition-colors shrink-0 cursor-pointer">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
+            <!-- Dynamic highway cards rendered here -->
+            
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#1E293B]/80 py-6 text-center text-xs text-slate-500 font-mono">
+        TIFT &bull; <span data-i18n="footerText">Automated Highway Fog Telemetry</span>
+    </footer>
+    <pre class="text-[#858484] text-left p-4 max-w-6xl w-full mx-auto font-mono text-xs"> By THE INVINCIBLES:
+   Radislav Karaivanov
+   Borislav Karaivanov
+   Radoslav Iliev
+   Daniel Nikolov
+   Plamen Tsachev
+   Nikita Petrochenko
+   Daniela Genova</pre>
+
+    <script>
+        let currentLang = localStorage.getItem('tift_lang') || 'bg';
+        let currentFilter = 'ALL';
+
+        const ADAFRUIT_USERNAME = "Radkata90";
+        const ADAFRUIT_IO_KEY = "aio_WaGo67mHlOqCYqUBzuyiq58E23s4";
+
+        const TRANSLATIONS = {
+            en: {
+                subtitleTag: "The Invincible Fog Technology",
+                soundOff: "Sound: OFF",
+                soundOn: "Sound: ON",
+                refreshBtn: "Refresh",
+                adminPortalBtn: "Admin Portal",
+                adminActive: "Admin Active",
+                liveFeed: "Live Feed",
+                activeSensors: "Active Sensors",
+                avgHumidity: "Avg Humidity",
+                systemMode: "System Mode",
+                sessionVisitors: "Live Visitors",
+                adminPanelTitle: "Administrator Control Panel",
+                adminLogoutBtn: "Log Out Admin",
+                broadcastTitle: "Persistent Broadcast Message",
+                broadcastSub: "Publish new alerts or completely delete/hide the broadcast.",
+                broadcastPlaceholder: "Type warning message...",
+                publishBtn: "Publish",
+                deleteBroadcastBtn: "Delete",
+                adminModalTitle: "Admin Portal Login",
+                adminModalSub: "Restricted access for system administrators.",
+                adminUserLabel: "Admin Username",
+                adminPassLabel: "Admin Password",
+                adminSubmitBtn: "Authenticate Admin →",
+                footerText: "Automated Highway Fog Telemetry",
+                clearRoad: "Clear Road",
+                fogActive: "Fog Active",
+                humidityTitle: "Humidity",
+                estVisibility: "Est. Visibility",
+                safeSpeed: "Safe Speed Limit",
+                safetyAdvice: "Safety Advice:",
+                hideCamera: "Hide Live Camera",
+                seeCamera: "See Live Camera",
+                viewHistoryBtn: "📈 View History (Last 10)",
+                liveCameraHeader: "Live Camera View • Updates every 60s",
+                fullTab: "Full Tab ↗",
+                statusClear: "CLEAR",
+                statusMist: "MIST RISK",
+                statusFogLikely: "FOG LIKELY",
+                statusFog: "FOG",
+                adviceClear: "Normal driving conditions. Visibility is optimal.",
+                adviceMist: "Watch for localized patches of mist in low areas.",
+                adviceFogLikely: "Reduce speed and increase following distance.",
+                adviceFog: "Severe visibility risk! Turn on fog lights and slow down."
+            },
+            bg: {
+                subtitleTag: "Технология срещу мъгла",
+                soundOff: "Звук: ИЗКЛ",
+                soundOn: "Звук: ВКЛ",
+                refreshBtn: "Обнови",
+                adminPortalBtn: "Админ Панел",
+                adminActive: "Админ Влязъл",
+                liveFeed: "На живо",
+                activeSensors: "Активни сензори",
+                avgHumidity: "Ср. влажност",
+                systemMode: "Система",
+                sessionVisitors: "Посетители",
+                adminPanelTitle: "Контролен панел на администратора",
+                adminLogoutBtn: "Изход от админ",
+                broadcastTitle: "Постоянно съобщение за спешни случаи",
+                broadcastSub: "Публикувайте нови сигнали или изтрийте/скрийте изцяло излъчването.",
+                broadcastPlaceholder: "Въведете предупреждение...",
+                publishBtn: "Публикувай",
+                deleteBroadcastBtn: "Изтрий",
+                adminModalTitle: "Вход за администратори",
+                adminModalSub: "Ограничен достъп за системни администратори.",
+                adminUserLabel: "Админ потребител",
+                adminPassLabel: "Админ парола",
+                adminSubmitBtn: "Вход →",
+                footerText: "Автоматизирана телеметрия на мъгла по магистралите",
+                clearRoad: "Чист път",
+                fogActive: "Мъгла",
+                humidityTitle: "Влажност",
+                estVisibility: "Видимост",
+                safeSpeed: "Препоръчителна скорост",
+                safetyAdvice: "Съвет за безопасност:",
+                hideCamera: "Скрий камерата",
+                seeCamera: "Виж камера на живо",
+                viewHistoryBtn: "📈 История (Последни 10)",
+                liveCameraHeader: "Камера на живо • Обновяване на 60с",
+                fullTab: "Пълен екран ↗",
+                statusClear: "ЧИСТО",
+                statusMist: "РИСК ОТ МЪГЛА",
+                statusFogLikely: "ВЕРОЯТНА МЪГЛА",
+                statusFog: "МЪГЛА",
+                adviceClear: "Нормални условия за шофиране. Видимостта е оптимална.",
+                adviceMist: "Внимавайте за локални участъци с мъгла в ниските зони.",
+                adviceFogLikely: "Намалете скоростта и увеличете дистанцията.",
+                adviceFog: "Сериозен риск за видимостта! Включете фарове за мъгла и намалете скоростта."
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'bg' ? 'en' : 'bg';
+            localStorage.setItem('tift_lang', currentLang);
+            applyTranslations();
+            fetchAdafruitBroadcast();
+            refreshTelemetry();
+        }
+
+        function applyTranslations() {
+            document.getElementById('current-lang-label').textContent = currentLang.toUpperCase();
+            document.documentElement.lang = currentLang;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (TRANSLATIONS[currentLang][key]) {
+                    el.textContent = TRANSLATIONS[currentLang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (TRANSLATIONS[currentLang][key]) {
+                    el.setAttribute('placeholder', TRANSLATIONS[currentLang][key]);
+                }
+            });
+        }
+
+        let PROGRAMMER_CONFIG = {
+            POLL_INTERVAL_MS: 15000,
+            HIGHWAYS: [
+                {
+                    name: 'АМ "Тракия"',
+                    arduinoCloudUrl: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/humidity/data/last`,
+                    arduinoHistoryUrl: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/humidity/data?limit=10`,
+                    demoHumidity: 89,
+                    webcamUrl: 'https://weather-webcam.eu/ueb-kamera-ot-avtomagistrala-trakiya-kilometar-165-omv-orizovo/'
+                }
+            ],
+            ADA_FEEDS: {
+                counter: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/counter/data/last`,
+                hba: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/hba/data/last`,
+                broadcast: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/broadcast/data/last`
+            }
+        };
+
+        const openCameraTabs = {};
+        let audioAlertEnabled = false;
+        let sharedAudioCtx = null;
+        let pollIntervalTimer = null;
+        let currentGpsSpeedKmH = 0;
+        let globalMaxSpeedLimit = 140;
+
+        async function secureFetch(url, options = {}) {
+            const headers = {
+                'X-AIO-Key': ADAFRUIT_IO_KEY,
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            };
+            return fetch(url, { ...options, headers });
+        }
+
+        async function fetchAdafruitVisitorCounter() {
+            const userCounterEl = document.getElementById('real-visitor-counter');
+            try {
+                const res = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.counter}?_=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const val = parseValueFromPayload(data);
+                    if (val !== null && !isNaN(val)) {
+                        if (userCounterEl) userCounterEl.textContent = parseInt(val, 10).toLocaleString();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('Visitor counter fetch warning:', e);
+            }
+            if (userCounterEl) userCounterEl.textContent = "1,923";
+        }
+
+        async function pushVisitorToAdafruit(feedKey) {
+            const input = document.getElementById('admin-override-visitors');
+            if (!input || !input.value) return;
+            const val = input.value;
+            try {
+                const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                const res = await secureFetch(postUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ value: val })
+                });
+                if (res.ok) {
+                    if (document.getElementById('real-visitor-counter')) {
+                        document.getElementById('real-visitor-counter').textContent = parseInt(val, 10).toLocaleString();
+                    }
+                    input.value = '';
+                    alert('Visitor count updated on Adafruit IO!');
+                    fetchAdafruitVisitorCounter();
+                } else {
+                    alert('Failed to update visitor count.');
+                }
+            } catch (err) {
+                console.error('Error posting visitor count:', err);
+            }
+        }
+
+        function parseValueFromPayload(data) {
+            if (typeof data === 'number') return data;
+            if (typeof data === 'string' && !isNaN(parseFloat(data))) return parseFloat(data);
+            if (data && typeof data === 'object') {
+                const item = Array.isArray(data) ? data[data.length - 1] : data;
+                if (!item) return null;
+                const raw = item.value !== undefined ? item.value : item.last_value;
+                if (raw !== undefined && raw !== null && raw !== '') return raw;
+            }
+            return null;
+        }
+
+        async function fetchAdafruitBroadcast() {
+            const ticker = document.getElementById('emergency-ticker');
+            const textEl = document.getElementById('ticker-text');
+            const clearBtn = document.getElementById('dismiss-broadcast-btn');
+            const isAdmin = localStorage.getItem('tift_admin_logged') === 'true';
+
+            let broadcastMsg = '';
+            try {
+                const res = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.broadcast}?_=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const val = parseValueFromPayload(data);
+                    if (val !== null) {
+                        broadcastMsg = String(val);
+                    }
+                }
+            } catch (e) {
+                console.warn('Broadcast fetch warning:', e);
+            }
+
+            if (!broadcastMsg || broadcastMsg.trim() === '' || broadcastMsg === 'null' || broadcastMsg === 'DELETED') {
+                if (ticker) ticker.classList.add('hidden');
+                return;
+            }
+
+            if (textEl) textEl.textContent = broadcastMsg;
+            if (ticker) ticker.classList.remove('hidden');
+
+            if (clearBtn && isAdmin) {
+                clearBtn.classList.remove('hidden');
+            }
+        }
+
+        async function pushBroadcastToAdafruit(feedKey) {
+            const input = document.getElementById('custom-broadcast-input');
+            if (!input) return;
+            const msg = input.value.trim();
+            if (msg) {
+                try {
+                    const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                    const res = await secureFetch(postUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({ value: msg })
+                    });
+                    if (res.ok) {
+                        const textEl = document.getElementById('ticker-text');
+                        const ticker = document.getElementById('emergency-ticker');
+                        if (textEl) textEl.textContent = msg;
+                        if (ticker) ticker.classList.remove('hidden');
+                        input.value = '';
+                        alert('Broadcast published successfully!');
+                        fetchAdafruitBroadcast();
+                    } else {
+                        alert('Failed to publish broadcast message.');
+                    }
+                } catch (e) {
+                    console.error('Error publishing broadcast:', e);
+                }
+            }
+        }
+
+        async function deleteBroadcastCompletely(feedKey) {
+            try {
+                const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                await secureFetch(postUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ value: 'DELETED' })
+                });
+                const ticker = document.getElementById('emergency-ticker');
+                if (ticker) ticker.classList.add('hidden');
+                alert('Broadcast deleted from cloud feed.');
+            } catch (e) {
+                console.error('Error clearing broadcast:', e);
+            }
+        }
+
+        function clearBroadcast() {
+            deleteBroadcastCompletely('broadcast');
+        }
+
+        function updateOverrideBadge() {
+            const badge = document.getElementById('override-status-badge');
+            if (badge) badge.classList.remove('hidden');
+        }
+
+        async function pushHumidityToAdafruit(feedKey) {
+            const input = document.getElementById('admin-override-humidity');
+            if (!input || input.value === '') return;
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val >= 0 && val <= 100) {
+                try {
+                    const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                    const res = await secureFetch(postUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({ value: val })
+                    });
+                    if (res.ok) {
+                        input.value = '';
+                        updateOverrideBadge();
+                        refreshTelemetry();
+                        alert('Humidity override pushed to Adafruit IO!');
+                    } else {
+                        alert('Failed to push humidity override.');
+                    }
+                } catch (e) {
+                    console.error('Error pushing hba:', e);
+                }
+            }
+        }
+
+        function requestGeolocationPermission() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    () => { startGpsWatch(); },
+                    () => { console.warn('GPS permission denied.'); },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            }
+        }
+
+        function startGpsWatch() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const speedMps = position.coords.speed;
+                        if (speedMps !== null && speedMps >= 0) {
+                            currentGpsSpeedKmH = Math.round(speedMps * 3.6);
+                        }
+                        updateGpsSpeedSign();
+                    },
+                    () => {},
+                    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+                );
+            }
+        }
+
+        function updateGpsSpeedSign() {
+            const speedNumEl = document.getElementById('gps-speed-num');
+            const widgetEl = document.getElementById('gps-sign-widget');
+            if (!speedNumEl || !widgetEl) return;
+            speedNumEl.textContent = currentGpsSpeedKmH;
+            if (currentGpsSpeedKmH > globalMaxSpeedLimit) {
+                widgetEl.style.borderColor = '#EF4444';
+            } else {
+                widgetEl.style.borderColor = '#10B981';
+            }
+        }
+
+        function setFilter(mode) {
+            currentFilter = mode;
+            ['ALL', 'FOG', 'CLEAR'].forEach(m => {
+                const btn = document.getElementById(`filter-btn-${m}`);
+                if (btn) {
+                    btn.className = m === mode 
+                        ? 'px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 transition-all cursor-pointer font-bold shadow-sm'
+                        : 'px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer';
+                }
+            });
+            refreshTelemetry();
+        }
+
+        function changePollSpeed(ms) {
+            PROGRAMMER_CONFIG.POLL_INTERVAL_MS = parseInt(ms, 10);
+            if (pollIntervalTimer) clearInterval(pollIntervalTimer);
+            pollIntervalTimer = setInterval(refreshTelemetry, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
+        }
+
+        function unlockAudioContext() {
+            if (!sharedAudioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) sharedAudioCtx = new AudioCtx();
+            }
+            if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+                sharedAudioCtx.resume();
+            }
+        }
+
+        function toggleAudioAlert() {
+            unlockAudioContext();
+            audioAlertEnabled = !audioAlertEnabled;
+            const btn = document.getElementById('sound-toggle-btn');
+            if (btn) {
+                btn.innerHTML = audioAlertEnabled 
+                    ? `🔔 <span>${currentLang === 'bg' ? 'Звук: ВКЛ' : 'Sound: ON'}</span>`
+                    : `🔕 <span>${currentLang === 'bg' ? 'Звук: ИЗКЛ' : 'Sound: OFF'}</span>`;
+            }
+        }
+
+        function openAdminModal() {
+            document.getElementById('admin-modal').classList.remove('hidden-modal');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-feedback').classList.add('hidden');
+            document.getElementById('admin-modal').classList.add('hidden-modal');
+        }
+
+        async function openHistoryModal(highwayIndex) {
+            const modal = document.getElementById('history-modal');
+            const titleEl = document.getElementById('history-modal-title');
+            const svgEl = document.getElementById('history-svg-chart');
+            const listEl = document.getElementById('history-points-list');
+            if (!modal || !svgEl || !listEl) return;
+
+            const hwConfig = PROGRAMMER_CONFIG.HIGHWAYS[highwayIndex] || PROGRAMMER_CONFIG.HIGHWAYS[0];
+            titleEl.textContent = `${hwConfig.name} — ${currentLang === 'bg' ? 'История на влажността' : 'Humidity History'}`;
+            listEl.innerHTML = `<div class="text-center text-slate-400 py-4">Loading private Adafruit IO history...</div>`;
+            modal.classList.remove('hidden-modal');
+
+            let history = [];
+            try {
+                const res = await secureFetch(hwConfig.arduinoHistoryUrl, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        history = data.map(item => ({
+                            humidity: parseFloat(item.value),
+                            timestamp: new Date(item.created_at || item.updated_at || Date.now())
+                        })).filter(item => Number.isFinite(item.humidity));
+                    }
+                }
+            } catch (e) {
+                console.warn('History fetch warning:', e);
+            }
+
+            if (history.length === 0) {
+                history = [
+                    { humidity: 25, timestamp: new Date(Date.now() - 400000) },
+                    { humidity: 48, timestamp: new Date(Date.now() - 300000) },
+                    { humidity: 72, timestamp: new Date(Date.now() - 200000) },
+                    { humidity: 89, timestamp: new Date() }
+                ];
+            }
+
+            const width = 540;
+            const height = 220;
+            const padLeft = 36;
+            const padRight = 24;
+            const padTop = 26;
+            const padBottom = 20;
+            const plotW = width - padLeft - padRight;
+            const plotH = height - padTop - padBottom;
+            const getY = (val) => padTop + plotH - ((val / 100) * plotH);
+
+            let svgContent = '';
+            
+            const y80 = getY(80);
+            const y55 = getY(55);
+            const y30 = getY(30);
+
+            svgContent += `<rect x="${padLeft}" y="${padTop}" width="${plotW}" height="${y80 - padTop}" fill="#EF4444" fill-opacity="0.08" />`;
+            svgContent += `<rect x="${padLeft}" y="${y80}" width="${plotW}" height="${y55 - y80}" fill="#F59E0B" fill-opacity="0.08" />`;
+            svgContent += `<rect x="${padLeft}" y="${y55}" width="${plotW}" height="${y30 - y55}" fill="#38BDF8" fill-opacity="0.08" />`;
+            svgContent += `<rect x="${padLeft}" y="${y30}" width="${plotW}" height="${padTop + plotH - y30}" fill="#10B981" fill-opacity="0.08" />`;
+
+            svgContent += `<line x1="${padLeft}" y1="${y80}" x2="${width - padRight}" y2="${y80}" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.85" />`;
+            svgContent += `<line x1="${padLeft}" y1="${y55}" x2="${width - padRight}" y2="${y55}" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.85" />`;
+            svgContent += `<line x1="${padLeft}" y1="${y30}" x2="${width - padRight}" y2="${y30}" stroke="#38BDF8" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.85" />`;
+
+            if (history.length > 1) {
+                const points = history.map((item, idx) => ({
+                    x: padLeft + (idx / (history.length - 1)) * plotW,
+                    y: getY(item.humidity),
+                    ...item
+                }));
+                let pathD = `M ${points[0].x} ${points[0].y}`;
+                for (let i = 1; i < points.length; i++) {
+                    pathD += ` L ${points[i].x} ${points[i].y}`;
+                }
+                svgContent += `<path d="${pathD}" fill="none" stroke="#38BDF8" stroke-width="3" />`;
+                
+                points.forEach(p => {
+                    svgContent += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#ffffff" stroke="#070B14" stroke-width="2.5" />`;
+                    svgContent += `<text x="${p.x}" y="${p.y - 10}" fill="#38BDF8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" text-anchor="middle">${p.humidity.toFixed(1)}%</text>`;
+                });
+            }
+            svgEl.innerHTML = svgContent;
+            listEl.innerHTML = history.slice().reverse().map(h => `
+                <div class="flex items-center justify-between bg-[#070B14] border border-[#1E293B] rounded-xl px-3.5 py-2.5">
+                    <span class="text-slate-400">${new Date(h.timestamp).toLocaleTimeString()}</span>
+                    <span class="text-white font-extrabold text-sm">${h.humidity.toFixed(1)}%</span>
+                </div>
+            `).join('');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.add('hidden-modal');
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const userIn = document.getElementById('admin-user').value.trim();
+            const passIn = document.getElementById('admin-pass').value.trim();
+            const feedback = document.getElementById('admin-feedback');
+
+            if (userIn === 'adm1' && passIn === 'admin1324') {
+                localStorage.setItem('tift_admin_logged', 'true');
+                closeAdminModal();
+                checkAdminSession();
+                fetchAdafruitBroadcast();
+            } else {
+                feedback.textContent = currentLang === 'bg' ? 'Невалидни административни данни.' : 'Invalid administrator credentials.';
+                feedback.classList.remove('hidden');
+            }
+        }
+
+        function handleAdminLogout() {
+            localStorage.removeItem('tift_admin_logged');
+            checkAdminSession();
+            fetchAdafruitBroadcast();
+        }
+
+        function checkAdminSession() {
+            const isLoggedIn = localStorage.getItem('tift_admin_logged') === 'true';
+            const statsPanel = document.getElementById('admin-stats-panel');
+            const menuBtn = document.getElementById('admin-menu-btn');
+
+            if (isLoggedIn) {
+                statsPanel.classList.remove('hidden');
+                menuBtn.innerHTML = `🛡️ <span>${TRANSLATIONS[currentLang].adminActive}</span>`;
+            } else {
+                statsPanel.classList.add('hidden');
+                menuBtn.innerHTML = `🔐 <span>${TRANSLATIONS[currentLang].adminPortalBtn}</span>`;
+            }
+        }
+
+        function calculateFogStatus(humidity) {
+            const h = Number(humidity);
+            const t = TRANSLATIONS[currentLang];
+
+            if (!Number.isFinite(h)) {
+                return {
+                    label: 'OFFLINE',
+                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
+                    accentBorder: 'border-t-4 border-t-slate-600',
+                    dotColor: 'bg-slate-400',
+                    valueColor: 'text-slate-400',
+                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
+                    visibility: 'Unknown',
+                    recommendedSpeed: '-- km/h',
+                    maxSpeedLimit: 140,
+                    fogOpacity: 0.2,
+                    fogColor: '#64748b',
+                    skyTop: '#070b14',
+                    skyBottom: '#1e293b',
+                    hasFog: false,
+                    isCritical: false
+                };
+            }
+
+            // Opacity scales dynamically with humidity: higher % = higher opacity (less transparent)
+            const dynamicOpacity = Math.min(0.98, Math.max(0.15, h / 100));
+
+            if (h < 30) {
+                return {
+                    label: t.statusClear,
+                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
+                    accentBorder: 'border-t-4 border-t-[#10B981]',
+                    dotColor: 'bg-[#10B981]',
+                    valueColor: 'text-[#10B981]',
+                    advice: t.adviceClear,
+                    visibility: '> 1,000 m',
+                    recommendedSpeed: '140 km/h',
+                    maxSpeedLimit: 140,
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#10B981',
+                    skyTop: '#051b2c',
+                    skyBottom: '#0e3d52',
+                    hasFog: false,
+                    isCritical: false
+                };
+            }
+            if (h <= 54) {
+                return {
+                    label: t.statusMist,
+                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
+                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
+                    dotColor: 'bg-[#38BDF8]',
+                    valueColor: 'text-[#38BDF8]',
+                    advice: t.adviceMist,
+                    visibility: '500 – 1,000 m',
+                    recommendedSpeed: '110 km/h',
+                    maxSpeedLimit: 110,
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#38BDF8',
+                    skyTop: '#09253d',
+                    skyBottom: '#174f7a',
+                    hasFog: true,
+                    isCritical: false
+                };
+            }
+            if (h <= 79) {
+                return {
+                    label: t.statusFogLikely,
+                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
+                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
+                    dotColor: 'bg-[#F59E0B]',
+                    valueColor: 'text-[#F59E0B]',
+                    advice: t.adviceFogLikely,
+                    visibility: '150 – 500 m',
+                    recommendedSpeed: '80 km/h',
+                    maxSpeedLimit: 80,
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#F59E0B',
+                    skyTop: '#291d0a',
+                    skyBottom: '#664914',
+                    hasFog: true,
+                    isCritical: false
+                };
+            }
+            return {
+                label: t.statusFog,
+                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
+                accentBorder: 'border-t-4 border-t-[#EF4444]',
+                dotColor: 'bg-[#EF4444]',
+                valueColor: 'text-[#EF4444]',
+                advice: t.adviceFog,
+                visibility: '< 150 m',
+                recommendedSpeed: '50 km/h',
+                maxSpeedLimit: 50,
+                fogOpacity: dynamicOpacity,
+                fogColor: '#EF4444',
+                skyTop: '#2b0b0b',
+                skyBottom: '#6e1a1a',
+                hasFog: true,
+                isCritical: true
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTranslations();
+            fetchAdafruitVisitorCounter();
+            fetchAdafruitBroadcast();
+            checkAdminSession();
+            setTimeout(requestGeolocationPermission, 1200);
+
+            const introOverlay = document.getElementById('intro-overlay');
+            const skipIntroBtn = document.getElementById('skip-intro-btn');
+            const introVideo = document.getElementById('intro-video');
+
+            function closeIntro() {
+                if (!introOverlay) return;
+                introOverlay.classList.add('fade-out');
+                setTimeout(() => { if (introOverlay.parentNode) introOverlay.remove(); }, 650);
+            }
+
+            if (skipIntroBtn) skipIntroBtn.addEventListener('click', closeIntro);
+            if (introVideo) introVideo.addEventListener('ended', closeIntro);
+
+            refreshTelemetry();
+            pollIntervalTimer = setInterval(() => {
+                refreshTelemetry();
+                fetchAdafruitVisitorCounter();
+                fetchAdafruitBroadcast();
+            }, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
+        });
+
+        function toggleCameraTab(idx) {
+            openCameraTabs[idx] = !openCameraTabs[idx];
+            const container = document.getElementById(`camera-panel-${idx}`);
+            const btnLabel = document.getElementById(`camera-btn-label-${idx}`);
+            const iframe = document.getElementById(`camera-iframe-${idx}`);
+
+            if (!container || !btnLabel) return;
+
+            if (openCameraTabs[idx]) {
+                container.classList.remove('hidden');
+                btnLabel.textContent = TRANSLATIONS[currentLang].hideCamera;
+                if (iframe && !iframe.getAttribute('src')) {
+                    iframe.setAttribute('src', iframe.dataset.src);
+                }
+            } else {
+                container.classList.add('hidden');
+                btnLabel.textContent = TRANSLATIONS[currentLang].seeCamera;
+            }
+        }
+
+        async function fetchHighwayTelemetry(highwayConfig) {
+            let hbaVal = null;
+            try {
+                const hbaRes = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.hba}?_=${Date.now()}`, { cache: 'no-store' });
+                if (hbaRes.ok) {
+                    const hbaData = await hbaRes.json();
+                    const parsedHba = parseValueFromPayload(hbaData);
+                    if (parsedHba !== null && !isNaN(parsedHba)) {
+                        hbaVal = parseFloat(parsedHba);
+                    }
+                }
+            } catch (e) {
+                console.warn('Hba feed warning:', e);
+            }
+
+            if (hbaVal !== null && Number.isFinite(hbaVal)) {
+                return { name: highwayConfig.name, humidity: hbaVal, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
+            }
+
+            try {
+                const response = await secureFetch(highwayConfig.arduinoCloudUrl, { method: 'GET', cache: 'no-store' });
+                if (response.ok) {
+                    const payload = await response.json();
+                    const val = parseValueFromPayload(payload);
+                    if (val !== null && Number.isFinite(parseFloat(val))) {
+                        return { name: highwayConfig.name, humidity: parseFloat(val), timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
+                    }
+                }
+            } catch (err) {
+                console.warn('Sensor fetch warning:', err);
+            }
+
+            return { name: highwayConfig.name, humidity: highwayConfig.demoHumidity || 50, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
+        }
+
+       function renderHighwayCards(readings) {
+
+            const grid = document.getElementById('highway-grid');
+            const summaryAvgEl = document.getElementById('summary-avg-humidity');
+            const t = TRANSLATIONS[currentLang];
+            if (!grid) return;
+
+            let total = 0, valid = 0;
+            readings.forEach(r => { if (Number.isFinite(r.humidity)) { total += r.humidity; valid++; } });
+            if (valid > 0 && summaryAvgEl) summaryAvgEl.textContent = `${(total / valid).toFixed(1)}%`;
+
+            const filteredReadings = readings.filter(item => {
+                const status = calculateFogStatus(item.humidity);
+                if (currentFilter === 'FOG') return status.hasFog;
+                if (currentFilter === 'CLEAR') return !status.hasFog;
+                return true;
+            });
+
+            if (filteredReadings.length === 0) {
+                grid.className = "max-w-2xl mx-auto w-full text-center py-12";
+                grid.innerHTML = `<div class="p-6 bg-[#0E1626] border border-[#1E293B] rounded-2xl text-slate-400 font-mono text-sm shadow-xl">No highway segments match the selected filter.</div>`;
+                return;
+            }
+
+            if (filteredReadings.length === 1) {
+                grid.className = "max-w-2xl mx-auto w-full text-left";
+            } else {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left";
+            }
+
+            grid.innerHTML = filteredReadings.map((item, idx) => {
+                const status = calculateFogStatus(item.humidity);
+                const humidityDisplay = Number.isFinite(item.humidity) ? `${item.humidity.toFixed(1)}%` : '--%';
+                const isOpen = !!openCameraTabs[idx];
+                const safeWebcamUrl = escapeHTML(item.webcamUrl || '');
+
+                const horizonHazeMarkup = `
+                    <div class="absolute inset-x-0 top-[42%] h-8 blur-lg transition-colors duration-700"
+                         style="background-color: ${status.fogColor}; opacity: ${status.hasFog ? status.fogOpacity * 0.55 : 0}; display: ${status.hasFog ? 'block' : 'none'};"></div>
+                `;
+
+                const cameraSectionMarkup = item.webcamUrl ? `
+                    <div class="flex flex-col gap-3">
+                        <button type="button" onclick="toggleCameraTab(${idx})" class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 hover:text-white border border-sky-500/40 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span id="camera-btn-label-${idx}">${isOpen ? t.hideCamera : t.seeCamera}</span>
+                        </button>
+                        <button type="button" onclick="openHistoryModal(${idx})" class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 hover:text-white border border-indigo-500/40 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                            ${t.viewHistoryBtn}
+                        </button>
+                        <div id="camera-panel-${idx}" class="${isOpen ? '' : 'hidden'} rounded-xl overflow-hidden border border-[#1E293B] bg-[#070B14] shadow-inner">
+                            <div class="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-[#1E293B] text-[11px] font-mono">
+                                <span class="text-slate-300 font-semibold">${t.liveCameraHeader}</span>
+                                <a href="${safeWebcamUrl}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">${t.fullTab}</a>
+                            </div>
+                            <div class="relative w-full h-72 sm:h-80 bg-slate-950">
+                                <iframe id="camera-iframe-${idx}" data-src="${safeWebcamUrl}" ${isOpen ? `src="${safeWebcamUrl}"` : ''} class="w-full h-full border-0" loading="lazy" title="Live Camera"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                // Status-coloured animated fog; humidity controls its density.
+                const fogCloudsMarkup = `
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden z-20"
+                         style="--fog-color: ${status.fogColor}; opacity: ${status.hasFog ? status.fogOpacity : 0}; display: ${status.hasFog ? 'block' : 'none'};">
+                        <div class="cloud-patch-1 absolute top-2 left-3 rounded-full"
+                             style="background: radial-gradient(circle, var(--fog-color) 0%, transparent 70%); filter: blur(12px);"></div>
+                        <div class="cloud-patch-2 absolute bottom-2 right-4 rounded-full"
+                             style="background: radial-gradient(circle, var(--fog-color) 0%, transparent 70%); filter: blur(12px);"></div>
+                    </div>
+                `;
+
+                return `
+                    <article class="bg-[#0E1626] border border-[#1E293B] ${status.accentBorder} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between gap-6 transition-all text-left relative overflow-hidden group hover:border-slate-700">
+                        
+                        <!-- Animated 3D-Perspective Highway & Cars Scene -->
+                        <div class="relative w-full h-36 rounded-2xl overflow-hidden border border-[#1E293B] shadow-inner select-none"
+                             style="background: linear-gradient(180deg, ${status.skyTop} 0%, ${status.skyBottom} 52%, #0e1626 52%, #070b14 100%);">
+                            
+                            ${horizonHazeMarkup}
+
+                            <svg viewBox="0 0 400 130" class="w-full h-full relative z-10" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <radialGradient id="headlight-glow-${idx}" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+                                        <stop offset="45%" stop-color="#fde047" stop-opacity="0.45"/>
+                                        <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="road-surface-${idx}" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#1e293b"/>
+                                        <stop offset="100%" stop-color="#070b14"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <polygon points="175,65 225,65 370,130 30,130" fill="url(#road-surface-${idx})" />
+                                <line x1="175" y1="65" x2="35" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
+                                <line x1="225" y1="65" x2="365" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
+                                <line x1="200" y1="65" x2="200" y2="130" stroke="#e2e8f0" stroke-width="2.5" stroke-dasharray="10 14" stroke-opacity="0.7" class="animate-road-dashes" />
+
+                                <g class="animate-car-2" style="opacity: ${Math.max(0.15, 1 - status.fogOpacity * 0.85)};">
+                                    <ellipse cx="242" cy="88" rx="18" ry="4" fill="url(#headlight-glow-${idx})" />
+                                    <path d="M231,74 L234,68 L250,68 L253,74 Z" fill="#475569" />
+                                    <rect x="229" y="74" width="26" height="8" rx="2" fill="#64748b" />
+                                    <circle cx="233" cy="78" r="2.2" fill="#fef9c3" />
+                                    <circle cx="251" cy="78" r="2.2" fill="#fef9c3" />
+                                    <circle cx="233" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
+                                    <circle cx="251" cy="78" r="8" fill="url(#headlight-glow-${idx})" />
+                                </g>
+
+                                <g class="animate-car-1">
+                                    <polygon points="103,104 82,130 124,130" fill="url(#headlight-glow-${idx})" />
+                                    <polygon points="145,104 124,130 166,130" fill="url(#headlight-glow-${idx})" />
+                                    <rect x="97" y="108" width="8" height="7" rx="1.5" fill="#020617" />
+                                    <rect x="143" y="108" width="8" height="7" rx="1.5" fill="#020617" />
+                                    <path d="M104,95 L110,83 L138,83 L144,95 Z" fill="#334155" stroke="#94a3b8" stroke-width="0.8" />
+                                    <path d="M107,94 L112,85 L136,85 L141,94 Z" fill="#070b14" />
+                                    <rect x="96" y="94" width="56" height="15" rx="4" fill="#cbd5e1" />
+                                    <rect x="114" y="99" width="20" height="5" rx="1.5" fill="#1e293b" />
+                                    <circle cx="103" cy="101" r="3.5" fill="#ffffff" />
+                                    <circle cx="145" cy="101" r="3.5" fill="#ffffff" />
+                                    <circle cx="103" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
+                                    <circle cx="145" cy="101" r="14" fill="url(#headlight-glow-${idx})" />
+                                </g>
+                            </svg>
+
+                            ${fogCloudsMarkup}
+
+                            <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700/80 shadow-md">
+                                <span class="w-2 h-2 rounded-full ${status.dotColor}"></span>
+                                <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-200">
+                                    ${status.hasFog ? t.fogActive : t.clearRoad}
+                                </span>
+                            </div>
+                        </div>
+
+                        ${cameraSectionMarkup}
+
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">${escapeHTML(item.name)}</h2>
+                            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-extrabold tracking-wider border shrink-0 self-start shadow-sm ${status.badgeBg}">
+                                <span class="w-2.5 h-2.5 rounded-full ${status.dotColor}"></span>
+                                ${escapeHTML(status.label)}
+                            </span>
+                        </div>
+
+                        <!-- Humidity Display Box -->
+                        <div class="relative bg-[#070B14]/90 border border-[#1E293B] rounded-2xl px-5 py-5 flex items-center justify-between text-left shadow-inner overflow-hidden">
+                            <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-sky-500/5 blur-2xl pointer-events-none"></div>
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 block">${t.humidityTitle}</span>
+                                <span class="text-[10px] font-mono text-sky-400 mt-0.5 block">Live Cloud Sensor Value</span>
+                            </div>
+                            <div class="relative flex items-baseline gap-1">
+                                <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">${escapeHTML(humidityDisplay.replace('%',''))}</span>
+                                <span class="text-2xl sm:text-3xl font-extrabold font-mono ${status.valueColor}">%</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[#070B14]/60 border border-[#1E293B] rounded-2xl p-4 text-left shadow-inner">
+                                <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold">${t.estVisibility}</span>
+                                <span class="text-sm sm:text-base font-mono font-bold text-slate-100 mt-1 block">${escapeHTML(status.visibility)}</span>
+                            </div>
+                            <div class="bg-[#070B14]/60 border border-[#1E293B] rounded-2xl p-4 text-left shadow-inner">
+                                <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold">${t.safeSpeed}</span>
+                                <span class="text-sm sm:text-base font-mono font-bold ${status.valueColor} mt-1 block">${escapeHTML(status.recommendedSpeed)}</span>
+                            </div>
+                        </div>
+                        <div class="text-xs sm:text-sm text-slate-300 font-medium bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-left shadow-sm">
+                            <span class="text-sky-400 font-bold uppercase tracking-wider block mb-1">${t.safetyAdvice}</span>
+                            ${escapeHTML(status.advice)}
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function calculateFogStatus(humidity) {
+            const h = Number(humidity);
+            const t = TRANSLATIONS[currentLang];
+            const clampedHumidity = Number.isFinite(h) ? Math.min(100, Math.max(0, h)) : 0;
+            // More humidity means a denser (less transparent) fog overlay.
+            const dynamicOpacity = Math.min(0.90, 0.18 + (clampedHumidity / 100) * 0.72);
+
+            if (!Number.isFinite(h)) {
+                return {
+                    label: 'OFFLINE',
+                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
+                    accentBorder: 'border-t-4 border-t-slate-600',
+                    dotColor: 'bg-slate-400',
+                    valueColor: 'text-slate-400',
+                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
+                    visibility: 'Unknown',
+                    recommendedSpeed: '-- km/h',
+                    fogOpacity: 0,
+                    fogColor: '#64748B',
+                    fogTint: 'rgba(100, 116, 139, 0.0)',
+                    distantCarOpacity: 0.8,
+                    distantCarScale: 0.85,
+                    hasFog: false
+                };
+            }
+
+            if (h < 30) {
+                return {
+                    label: t.statusClear,
+                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
+                    accentBorder: 'border-t-4 border-t-[#10B981]',
+                    dotColor: 'bg-[#10B981]',
+                    valueColor: 'text-[#10B981]',
+                    advice: t.adviceClear,
+                    visibility: '> 1,000 m',
+                    recommendedSpeed: '140 km/h',
+                    fogOpacity: 0,
+                    fogColor: '#10B981',
+                    fogTint: 'rgba(16, 185, 129, 0)',
+                    distantCarOpacity: 0.95,
+                    distantCarScale: 0.85,
+                    hasFog: false
+                };
+            }
+            if (h <= 54) {
+                return {
+                    label: t.statusMist,
+                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
+                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
+                    dotColor: 'bg-[#38BDF8]',
+                    valueColor: 'text-[#38BDF8]',
+                    advice: t.adviceMist,
+                    visibility: '500 – 1,000 m',
+                    recommendedSpeed: '110 km/h',
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#38BDF8',
+                    fogTint: 'rgba(56, 189, 248, 0.4)',
+                    distantCarOpacity: 0.7,
+                    distantCarScale: 0.82,
+                    hasFog: true
+                };
+            }
+            if (h <= 79) {
+                return {
+                    label: t.statusFogLikely,
+                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
+                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
+                    dotColor: 'bg-[#F59E0B]',
+                    valueColor: 'text-[#F59E0B]',
+                    advice: t.adviceFogLikely,
+                    visibility: '150 – 500 m',
+                    recommendedSpeed: '80 km/h',
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#F59E0B',
+                    fogTint: 'rgba(245, 158, 11, 0.45)',
+                    distantCarOpacity: 0.35,
+                    distantCarScale: 0.78,
+                    hasFog: true
+                };
+            }
+            return {
+                label: t.statusFog,
+                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
+                accentBorder: 'border-t-4 border-t-[#EF4444]',
+                dotColor: 'bg-[#EF4444]',
+                valueColor: 'text-[#EF4444]',
+                advice: t.adviceFog,
+                visibility: '< 150 m',
+                recommendedSpeed: '50 km/h',
+                fogOpacity: dynamicOpacity,
+                fogColor: '#EF4444',
+                fogTint: 'rgba(239, 68, 68, 0.55)',
+                distantCarOpacity: 0.1,
+                distantCarScale: 0.7,
+                hasFog: true
+            };
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        async function refreshTelemetry() {
+            const results = await Promise.all(PROGRAMMER_CONFIG.HIGHWAYS.map(hw => fetchHighwayTelemetry(hw)));
+            renderHighwayCards(results);
+        }
+    </script>
+</body>
+</html>
