@@ -268,7 +268,7 @@
         </div>
     </div>
 
-    <!-- History Chart Modal with % Over Every Point & Status Borders -->
+    <!-- History Chart Modal -->
     <div id="history-modal" class="hidden-modal">
         <div class="bg-[#0E1626] border border-sky-500/40 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl text-left">
             <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#1E293B]">
@@ -284,7 +284,7 @@
                 <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white text-xl font-mono cursor-pointer">&times;</button>
             </div>
 
-            <!-- SVG Line Diagram with Threshold Status Regions -->
+            <!-- SVG Line Diagram -->
             <div class="bg-[#070B14] border border-[#1E293B] rounded-2xl p-4 mb-4 relative overflow-hidden">
                 <div class="flex flex-wrap items-center justify-between text-[10px] font-mono text-slate-400 mb-3 gap-2">
                     <span class="text-red-400 font-bold">🔴 Fog Zone (>80%)</span>
@@ -390,9 +390,9 @@
             <div class="flex items-center gap-2 text-slate-400">
                 <span>Poll:</span>
                 <select id="poll-speed-select" onchange="changePollSpeed(this.value)" class="bg-[#070B14] border border-slate-700 text-sky-400 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer">
-                    <option value="5000">5s</option>
                     <option value="15000" selected>15s</option>
                     <option value="30000">30s</option>
+                    <option value="60000">60s</option>
                 </select>
             </div>
         </div>
@@ -416,7 +416,7 @@
             <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
                 <div>
                     <span data-i18n="systemMode" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">System Mode</span>
-                    <span class="text-lg font-bold font-mono text-indigo-400 mt-1 block">Cloud Sync</span>
+                    <span class="text-lg font-bold font-mono text-indigo-400 mt-1 block">ThingSpeak</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono border border-indigo-500/20 shadow-inner">⚡</div>
             </div>
@@ -438,7 +438,7 @@
                     </div>
                     <div>
                         <h3 data-i18n="adminPanelTitle" class="text-sm font-bold font-mono text-white uppercase tracking-wider">Administrator Control Panel</h3>
-                        <p class="text-xs text-slate-400">Authenticated as <strong class="text-amber-400">adm1</strong> (Connected to Adafruit IO Cloud Feeds)</p>
+                        <p class="text-xs text-slate-400">Authenticated as <strong class="text-amber-400">adm1</strong> (Connected to ThingSpeak Channel 3595734)</p>
                     </div>
                 </div>
                 <button onclick="handleAdminLogout()" data-i18n="adminLogoutBtn" class="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer">
@@ -450,23 +450,23 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Push Humidity to Feed 'hba' (%)</label>
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Push Humidity to Field 2 (%)</label>
                         <span id="override-status-badge" class="hidden text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Cloud Override Active</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="number" id="admin-override-humidity" min="0" max="100" placeholder="e.g. 85" 
                                class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
-                        <button onclick="pushHumidityToAdafruit('hba')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                        <button onclick="pushHumidityToThingSpeak()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
                             Push to Cloud
                         </button>
                     </div>
                 </div>
                 <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
-                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold mb-2">Push Visitor Count to Feed 'counter'</label>
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold mb-2">Push Visitor Count to Field 3</label>
                     <div class="flex items-center gap-2">
                         <input type="number" id="admin-override-visitors" min="1" placeholder="e.g. 2500" 
                                class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
-                        <button onclick="pushVisitorToAdafruit('counter')" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                        <button onclick="pushVisitorToThingSpeak()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
                             Update
                         </button>
                     </div>
@@ -476,16 +476,16 @@
             <!-- Broadcast Management -->
             <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner">
                 <div>
-                    <span data-i18n="broadcastTitle" class="text-xs font-mono font-bold text-white uppercase tracking-wider block">Persistent Broadcast Message (Feed 'broadcast')</span>
+                    <span data-i18n="broadcastTitle" class="text-xs font-mono font-bold text-white uppercase tracking-wider block">Persistent Broadcast Message (Field 4)</span>
                     <span data-i18n="broadcastSub" class="text-[11px] text-slate-400">Publish new alerts or completely delete/hide the broadcast.</span>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <input type="text" id="custom-broadcast-input" data-i18n-placeholder="broadcastPlaceholder" placeholder="Type warning message..." 
                            class="bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500 w-full sm:w-64">
-                    <button onclick="pushBroadcastToAdafruit('broadcast')" data-i18n="publishBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer shadow-md">
+                    <button onclick="pushBroadcastToThingSpeak()" data-i18n="publishBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer shadow-md">
                         Publish
                     </button>
-                    <button onclick="deleteBroadcastCompletely('broadcast')" data-i18n="deleteBroadcastBtn" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-mono text-xs uppercase rounded-xl transition-colors shrink-0 cursor-pointer">
+                    <button onclick="deleteBroadcastCompletely()" data-i18n="deleteBroadcastBtn" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-mono text-xs uppercase rounded-xl transition-colors shrink-0 cursor-pointer">
                         Delete
                     </button>
                 </div>
@@ -494,7 +494,6 @@
 
         <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
             <!-- Dynamic highway cards rendered here -->
-            
         </section>
     </main>
 
@@ -515,8 +514,11 @@
         let currentLang = localStorage.getItem('tift_lang') || 'bg';
         let currentFilter = 'ALL';
 
-        const ADAFRUIT_USERNAME = "Radkata90";
-        const ADAFRUIT_IO_KEY = "aio_WaGo67mHlOqCYqUBzuyiq58E23s4";
+        // ThingSpeak Channel Configuration
+        const THINGSPEAK_CHANNEL_ID = "3595734";
+        const THINGSPEAK_READ_KEY   = "UFM4JPT7KNN81Y9K";
+        const THINGSPEAK_WRITE_KEY  = "LZUIB97HI5R72T9Q";
+        const THINGSPEAK_BASE_URL   = `https://api.thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}`;
 
         const TRANSLATIONS = {
             en: {
@@ -615,7 +617,7 @@
             currentLang = currentLang === 'bg' ? 'en' : 'bg';
             localStorage.setItem('tift_lang', currentLang);
             applyTranslations();
-            fetchAdafruitBroadcast();
+            fetchThingSpeakBroadcast();
             refreshTelemetry();
         }
 
@@ -643,16 +645,16 @@
             HIGHWAYS: [
                 {
                     name: 'АМ "Тракия"',
-                    arduinoCloudUrl: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/humidity/data/last`,
-                    arduinoHistoryUrl: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/humidity/data?limit=10`,
+                    thingSpeakLastUrl: `${THINGSPEAK_BASE_URL}/fields/1/last.json?api_key=${THINGSPEAK_READ_KEY}`,
+                    thingSpeakHistoryUrl: `${THINGSPEAK_BASE_URL}/fields/2.json?api_key=${THINGSPEAK_READ_KEY}&results=10`,
                     demoHumidity: 89,
                     webcamUrl: 'https://weather-webcam.eu/ueb-kamera-ot-avtomagistrala-trakiya-kilometar-165-omv-orizovo/'
                 }
             ],
-            ADA_FEEDS: {
-                counter: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/counter/data/last`,
-                hba: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/hba/data/last`,
-                broadcast: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/broadcast/data/last`
+            TS_FEEDS: {
+                counter: `${THINGSPEAK_BASE_URL}/fields/3/last.json?api_key=${THINGSPEAK_READ_KEY}`,
+                hba: `${THINGSPEAK_BASE_URL}/fields/2/last.json?api_key=${THINGSPEAK_READ_KEY}`,
+                broadcast: `${THINGSPEAK_BASE_URL}/fields/4/last.json?api_key=${THINGSPEAK_READ_KEY}`
             }
         };
 
@@ -663,22 +665,29 @@
         let currentGpsSpeedKmH = 0;
         let globalMaxSpeedLimit = 140;
 
-        async function secureFetch(url, options = {}) {
-            const headers = {
-                'X-AIO-Key': ADAFRUIT_IO_KEY,
-                'Content-Type': 'application/json',
-                ...(options.headers || {})
-            };
-            return fetch(url, { ...options, headers });
+        async function writeToThingSpeak(params) {
+            const query = new URLSearchParams({ api_key: THINGSPEAK_WRITE_KEY, ...params });
+            const url = `https://api.thingspeak.com/update?${query.toString()}`;
+            const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+            if (!res.ok) return 0;
+            const entryId = await res.text();
+            return parseInt(entryId, 10) || 0;
         }
 
-        async function fetchAdafruitVisitorCounter() {
+        function parseThingSpeakField(data, fieldNum) {
+            if (!data || typeof data !== 'object') return null;
+            const raw = data[`field${fieldNum}`];
+            if (raw === undefined || raw === null || raw === '') return null;
+            return raw;
+        }
+
+        async function fetchThingSpeakVisitorCounter() {
             const userCounterEl = document.getElementById('real-visitor-counter');
             try {
-                const res = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.counter}?_=${Date.now()}`, { cache: 'no-store' });
+                const res = await fetch(`${PROGRAMMER_CONFIG.TS_FEEDS.counter}&_=${Date.now()}`, { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
-                    const val = parseValueFromPayload(data);
+                    const val = parseThingSpeakField(data, 3);
                     if (val !== null && !isNaN(val)) {
                         if (userCounterEl) userCounterEl.textContent = parseInt(val, 10).toLocaleString();
                         return;
@@ -690,44 +699,28 @@
             if (userCounterEl) userCounterEl.textContent = "1,923";
         }
 
-        async function pushVisitorToAdafruit(feedKey) {
+        async function pushVisitorToThingSpeak() {
             const input = document.getElementById('admin-override-visitors');
             if (!input || !input.value) return;
             const val = input.value;
             try {
-                const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
-                const res = await secureFetch(postUrl, {
-                    method: 'POST',
-                    body: JSON.stringify({ value: val })
-                });
-                if (res.ok) {
+                const entryId = await writeToThingSpeak({ field3: val });
+                if (entryId > 0) {
                     if (document.getElementById('real-visitor-counter')) {
                         document.getElementById('real-visitor-counter').textContent = parseInt(val, 10).toLocaleString();
                     }
                     input.value = '';
-                    alert('Visitor count updated on Adafruit IO!');
-                    fetchAdafruitVisitorCounter();
+                    alert('Visitor count updated on ThingSpeak!');
+                    fetchThingSpeakVisitorCounter();
                 } else {
-                    alert('Failed to update visitor count.');
+                    alert('ThingSpeak rate limit (wait 15s between updates) or invalid key.');
                 }
             } catch (err) {
                 console.error('Error posting visitor count:', err);
             }
         }
 
-        function parseValueFromPayload(data) {
-            if (typeof data === 'number') return data;
-            if (typeof data === 'string' && !isNaN(parseFloat(data))) return parseFloat(data);
-            if (data && typeof data === 'object') {
-                const item = Array.isArray(data) ? data[data.length - 1] : data;
-                if (!item) return null;
-                const raw = item.value !== undefined ? item.value : item.last_value;
-                if (raw !== undefined && raw !== null && raw !== '') return raw;
-            }
-            return null;
-        }
-
-        async function fetchAdafruitBroadcast() {
+        async function fetchThingSpeakBroadcast() {
             const ticker = document.getElementById('emergency-ticker');
             const textEl = document.getElementById('ticker-text');
             const clearBtn = document.getElementById('dismiss-broadcast-btn');
@@ -735,10 +728,10 @@
 
             let broadcastMsg = '';
             try {
-                const res = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.broadcast}?_=${Date.now()}`, { cache: 'no-store' });
+                const res = await fetch(`${PROGRAMMER_CONFIG.TS_FEEDS.broadcast}&_=${Date.now()}`, { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
-                    const val = parseValueFromPayload(data);
+                    const val = parseThingSpeakField(data, 4);
                     if (val !== null) {
                         broadcastMsg = String(val);
                     }
@@ -760,27 +753,23 @@
             }
         }
 
-        async function pushBroadcastToAdafruit(feedKey) {
+        async function pushBroadcastToThingSpeak() {
             const input = document.getElementById('custom-broadcast-input');
             if (!input) return;
             const msg = input.value.trim();
             if (msg) {
                 try {
-                    const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
-                    const res = await secureFetch(postUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ value: msg })
-                    });
-                    if (res.ok) {
+                    const entryId = await writeToThingSpeak({ field4: msg });
+                    if (entryId > 0) {
                         const textEl = document.getElementById('ticker-text');
                         const ticker = document.getElementById('emergency-ticker');
                         if (textEl) textEl.textContent = msg;
                         if (ticker) ticker.classList.remove('hidden');
                         input.value = '';
-                        alert('Broadcast published successfully!');
-                        fetchAdafruitBroadcast();
+                        alert('Broadcast published successfully to ThingSpeak!');
+                        fetchThingSpeakBroadcast();
                     } else {
-                        alert('Failed to publish broadcast message.');
+                        alert('ThingSpeak rate limit: please wait 15 seconds between updates.');
                     }
                 } catch (e) {
                     console.error('Error publishing broadcast:', e);
@@ -788,23 +777,23 @@
             }
         }
 
-        async function deleteBroadcastCompletely(feedKey) {
+        async function deleteBroadcastCompletely() {
             try {
-                const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
-                await secureFetch(postUrl, {
-                    method: 'POST',
-                    body: JSON.stringify({ value: 'DELETED' })
-                });
-                const ticker = document.getElementById('emergency-ticker');
-                if (ticker) ticker.classList.add('hidden');
-                alert('Broadcast deleted from cloud feed.');
+                const entryId = await writeToThingSpeak({ field4: 'DELETED' });
+                if (entryId > 0) {
+                    const ticker = document.getElementById('emergency-ticker');
+                    if (ticker) ticker.classList.add('hidden');
+                    alert('Broadcast deleted from ThingSpeak feed.');
+                } else {
+                    alert('ThingSpeak rate limit: please wait 15 seconds between updates.');
+                }
             } catch (e) {
                 console.error('Error clearing broadcast:', e);
             }
         }
 
         function clearBroadcast() {
-            deleteBroadcastCompletely('broadcast');
+            deleteBroadcastCompletely();
         }
 
         function updateOverrideBadge() {
@@ -812,27 +801,23 @@
             if (badge) badge.classList.remove('hidden');
         }
 
-        async function pushHumidityToAdafruit(feedKey) {
+        async function pushHumidityToThingSpeak() {
             const input = document.getElementById('admin-override-humidity');
             if (!input || input.value === '') return;
             const val = parseFloat(input.value);
             if (!isNaN(val) && val >= 0 && val <= 100) {
                 try {
-                    const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
-                    const res = await secureFetch(postUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ value: val })
-                    });
-                    if (res.ok) {
+                    const entryId = await writeToThingSpeak({ field2: val });
+                    if (entryId > 0) {
                         input.value = '';
                         updateOverrideBadge();
                         refreshTelemetry();
-                        alert('Humidity override pushed to Adafruit IO!');
+                        alert('Humidity override pushed to ThingSpeak Field 2!');
                     } else {
-                        alert('Failed to push humidity override.');
+                        alert('ThingSpeak rate limit: please wait 15 seconds between updates.');
                     }
                 } catch (e) {
-                    console.error('Error pushing hba:', e);
+                    console.error('Error pushing humidity override:', e);
                 }
             }
         }
@@ -932,19 +917,19 @@
             if (!modal || !svgEl || !listEl) return;
 
             const hwConfig = PROGRAMMER_CONFIG.HIGHWAYS[highwayIndex] || PROGRAMMER_CONFIG.HIGHWAYS[0];
-            titleEl.textContent = `${hwConfig.name} — ${currentLang === 'bg' ? 'История на влажността' : 'Humidity History'}`;
-            listEl.innerHTML = `<div class="text-center text-slate-400 py-4">Loading private Adafruit IO history...</div>`;
+            titleEl.textContent = `${hwConfig.name} — ${currentLang === 'bg' ? 'История на влажността (HBA)' : 'Humidity History (HBA)'}`;
+            listEl.innerHTML = `<div class="text-center text-slate-400 py-4">Loading ThingSpeak Field 2 history...</div>`;
             modal.classList.remove('hidden-modal');
 
             let history = [];
             try {
-                const res = await secureFetch(hwConfig.arduinoHistoryUrl, { cache: 'no-store' });
+                const res = await fetch(`${hwConfig.thingSpeakHistoryUrl}&_=${Date.now()}`, { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        history = data.map(item => ({
-                            humidity: parseFloat(item.value),
-                            timestamp: new Date(item.created_at || item.updated_at || Date.now())
+                    if (data && Array.isArray(data.feeds) && data.feeds.length > 0) {
+                        history = data.feeds.map(item => ({
+                            humidity: parseFloat(item.field2),
+                            timestamp: new Date(item.created_at || Date.now())
                         })).filter(item => Number.isFinite(item.humidity));
                     }
                 }
@@ -954,10 +939,10 @@
 
             if (history.length === 0) {
                 history = [
-                    { humidity: 25, timestamp: new Date(Date.now() - 400000) },
-                    { humidity: 48, timestamp: new Date(Date.now() - 300000) },
-                    { humidity: 72, timestamp: new Date(Date.now() - 200000) },
-                    { humidity: 89, timestamp: new Date() }
+                    { humidity: 30, timestamp: new Date(Date.now() - 400000) },
+                    { humidity: 50, timestamp: new Date(Date.now() - 300000) },
+                    { humidity: 75, timestamp: new Date(Date.now() - 200000) },
+                    { humidity: 85, timestamp: new Date() }
                 ];
             }
 
@@ -1026,7 +1011,7 @@
                 localStorage.setItem('tift_admin_logged', 'true');
                 closeAdminModal();
                 checkAdminSession();
-                fetchAdafruitBroadcast();
+                fetchThingSpeakBroadcast();
             } else {
                 feedback.textContent = currentLang === 'bg' ? 'Невалидни административни данни.' : 'Invalid administrator credentials.';
                 feedback.classList.remove('hidden');
@@ -1036,7 +1021,7 @@
         function handleAdminLogout() {
             localStorage.removeItem('tift_admin_logged');
             checkAdminSession();
-            fetchAdafruitBroadcast();
+            fetchThingSpeakBroadcast();
         }
 
         function checkAdminSession() {
@@ -1056,6 +1041,8 @@
         function calculateFogStatus(humidity) {
             const h = Number(humidity);
             const t = TRANSLATIONS[currentLang];
+            const clampedHumidity = Number.isFinite(h) ? Math.min(100, Math.max(0, h)) : 0;
+            const dynamicOpacity = Math.min(0.95, 0.18 + (clampedHumidity / 100) * 0.77);
 
             if (!Number.isFinite(h)) {
                 return {
@@ -1068,7 +1055,7 @@
                     visibility: 'Unknown',
                     recommendedSpeed: '-- km/h',
                     maxSpeedLimit: 140,
-                    fogOpacity: 0.2,
+                    fogOpacity: 0,
                     fogColor: '#64748b',
                     skyTop: '#070b14',
                     skyBottom: '#1e293b',
@@ -1076,9 +1063,6 @@
                     isCritical: false
                 };
             }
-
-            // Opacity scales dynamically with humidity: higher % = higher opacity (less transparent)
-            const dynamicOpacity = Math.min(0.98, Math.max(0.15, h / 100));
 
             if (h < 30) {
                 return {
@@ -1091,7 +1075,7 @@
                     visibility: '> 1,000 m',
                     recommendedSpeed: '140 km/h',
                     maxSpeedLimit: 140,
-                    fogOpacity: dynamicOpacity,
+                    fogOpacity: 0,
                     fogColor: '#10B981',
                     skyTop: '#051b2c',
                     skyBottom: '#0e3d52',
@@ -1158,8 +1142,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTranslations();
-            fetchAdafruitVisitorCounter();
-            fetchAdafruitBroadcast();
+            fetchThingSpeakVisitorCounter();
+            fetchThingSpeakBroadcast();
             checkAdminSession();
             setTimeout(requestGeolocationPermission, 1200);
 
@@ -1179,8 +1163,8 @@
             refreshTelemetry();
             pollIntervalTimer = setInterval(() => {
                 refreshTelemetry();
-                fetchAdafruitVisitorCounter();
-                fetchAdafruitBroadcast();
+                fetchThingSpeakVisitorCounter();
+                fetchThingSpeakBroadcast();
             }, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
         });
 
@@ -1205,42 +1189,41 @@
         }
 
         async function fetchHighwayTelemetry(highwayConfig) {
-            let hbaVal = null;
+            let overrideVal = null;
             try {
-                const hbaRes = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.hba}?_=${Date.now()}`, { cache: 'no-store' });
+                const hbaRes = await fetch(`${PROGRAMMER_CONFIG.TS_FEEDS.hba}&_=${Date.now()}`, { cache: 'no-store' });
                 if (hbaRes.ok) {
                     const hbaData = await hbaRes.json();
-                    const parsedHba = parseValueFromPayload(hbaData);
-                    if (parsedHba !== null && !isNaN(parsedHba)) {
-                        hbaVal = parseFloat(parsedHba);
+                    const parsedHba = parseThingSpeakField(hbaData, 2);
+                    if (parsedHba !== null && !isNaN(parseFloat(parsedHba)) && parseFloat(parsedHba) >= 0) {
+                        overrideVal = parseFloat(parsedHba);
                     }
                 }
             } catch (e) {
-                console.warn('Hba feed warning:', e);
+                console.warn('ThingSpeak Field 2 override warning:', e);
             }
 
-            if (hbaVal !== null && Number.isFinite(hbaVal)) {
-                return { name: highwayConfig.name, humidity: hbaVal, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
+            if (overrideVal !== null && Number.isFinite(overrideVal)) {
+                return { name: highwayConfig.name, humidity: overrideVal, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
             }
 
             try {
-                const response = await secureFetch(highwayConfig.arduinoCloudUrl, { method: 'GET', cache: 'no-store' });
+                const response = await fetch(`${highwayConfig.thingSpeakLastUrl}&_=${Date.now()}`, { cache: 'no-store' });
                 if (response.ok) {
                     const payload = await response.json();
-                    const val = parseValueFromPayload(payload);
+                    const val = parseThingSpeakField(payload, 1);
                     if (val !== null && Number.isFinite(parseFloat(val))) {
                         return { name: highwayConfig.name, humidity: parseFloat(val), timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
                     }
                 }
             } catch (err) {
-                console.warn('Sensor fetch warning:', err);
+                console.warn('ThingSpeak Field 1 fetch warning:', err);
             }
 
             return { name: highwayConfig.name, humidity: highwayConfig.demoHumidity || 50, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
         }
 
-       function renderHighwayCards(readings) {
-
+        function renderHighwayCards(readings) {
             const grid = document.getElementById('highway-grid');
             const summaryAvgEl = document.getElementById('summary-avg-humidity');
             const t = TRANSLATIONS[currentLang];
@@ -1271,6 +1254,9 @@
 
             grid.innerHTML = filteredReadings.map((item, idx) => {
                 const status = calculateFogStatus(item.humidity);
+                globalMaxSpeedLimit = status.maxSpeedLimit;
+                updateGpsSpeedSign();
+
                 const humidityDisplay = Number.isFinite(item.humidity) ? `${item.humidity.toFixed(1)}%` : '--%';
                 const isOpen = !!openCameraTabs[idx];
                 const safeWebcamUrl = escapeHTML(item.webcamUrl || '');
@@ -1301,7 +1287,6 @@
                     </div>
                 ` : '';
 
-                // Status-coloured animated fog; humidity controls its density.
                 const fogCloudsMarkup = `
                     <div class="absolute inset-0 pointer-events-none overflow-hidden z-20"
                          style="--fog-color: ${status.fogColor}; opacity: ${status.hasFog ? status.fogOpacity : 0}; display: ${status.hasFog ? 'block' : 'none'};">
@@ -1390,7 +1375,7 @@
                             <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-sky-500/5 blur-2xl pointer-events-none"></div>
                             <div>
                                 <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 block">${t.humidityTitle}</span>
-                                <span class="text-[10px] font-mono text-sky-400 mt-0.5 block">Live Cloud Sensor Value</span>
+                                <span class="text-[10px] font-mono text-sky-400 mt-0.5 block">Live ThingSpeak Sensor Value</span>
                             </div>
                             <div class="relative flex items-baseline gap-1">
                                 <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">${escapeHTML(humidityDisplay.replace('%',''))}</span>
@@ -1415,104 +1400,6 @@
                     </article>
                 `;
             }).join('');
-        }
-
-        function calculateFogStatus(humidity) {
-            const h = Number(humidity);
-            const t = TRANSLATIONS[currentLang];
-            const clampedHumidity = Number.isFinite(h) ? Math.min(100, Math.max(0, h)) : 0;
-            // More humidity means a denser (less transparent) fog overlay.
-            const dynamicOpacity = Math.min(0.90, 0.18 + (clampedHumidity / 100) * 0.72);
-
-            if (!Number.isFinite(h)) {
-                return {
-                    label: 'OFFLINE',
-                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
-                    accentBorder: 'border-t-4 border-t-slate-600',
-                    dotColor: 'bg-slate-400',
-                    valueColor: 'text-slate-400',
-                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
-                    visibility: 'Unknown',
-                    recommendedSpeed: '-- km/h',
-                    fogOpacity: 0,
-                    fogColor: '#64748B',
-                    fogTint: 'rgba(100, 116, 139, 0.0)',
-                    distantCarOpacity: 0.8,
-                    distantCarScale: 0.85,
-                    hasFog: false
-                };
-            }
-
-            if (h < 30) {
-                return {
-                    label: t.statusClear,
-                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
-                    accentBorder: 'border-t-4 border-t-[#10B981]',
-                    dotColor: 'bg-[#10B981]',
-                    valueColor: 'text-[#10B981]',
-                    advice: t.adviceClear,
-                    visibility: '> 1,000 m',
-                    recommendedSpeed: '140 km/h',
-                    fogOpacity: 0,
-                    fogColor: '#10B981',
-                    fogTint: 'rgba(16, 185, 129, 0)',
-                    distantCarOpacity: 0.95,
-                    distantCarScale: 0.85,
-                    hasFog: false
-                };
-            }
-            if (h <= 54) {
-                return {
-                    label: t.statusMist,
-                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
-                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
-                    dotColor: 'bg-[#38BDF8]',
-                    valueColor: 'text-[#38BDF8]',
-                    advice: t.adviceMist,
-                    visibility: '500 – 1,000 m',
-                    recommendedSpeed: '110 km/h',
-                    fogOpacity: dynamicOpacity,
-                    fogColor: '#38BDF8',
-                    fogTint: 'rgba(56, 189, 248, 0.4)',
-                    distantCarOpacity: 0.7,
-                    distantCarScale: 0.82,
-                    hasFog: true
-                };
-            }
-            if (h <= 79) {
-                return {
-                    label: t.statusFogLikely,
-                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
-                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
-                    dotColor: 'bg-[#F59E0B]',
-                    valueColor: 'text-[#F59E0B]',
-                    advice: t.adviceFogLikely,
-                    visibility: '150 – 500 m',
-                    recommendedSpeed: '80 km/h',
-                    fogOpacity: dynamicOpacity,
-                    fogColor: '#F59E0B',
-                    fogTint: 'rgba(245, 158, 11, 0.45)',
-                    distantCarOpacity: 0.35,
-                    distantCarScale: 0.78,
-                    hasFog: true
-                };
-            }
-            return {
-                label: t.statusFog,
-                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
-                accentBorder: 'border-t-4 border-t-[#EF4444]',
-                dotColor: 'bg-[#EF4444]',
-                valueColor: 'text-[#EF4444]',
-                advice: t.adviceFog,
-                visibility: '< 150 m',
-                recommendedSpeed: '50 km/h',
-                fogOpacity: dynamicOpacity,
-                fogColor: '#EF4444',
-                fogTint: 'rgba(239, 68, 68, 0.55)',
-                distantCarOpacity: 0.1,
-                distantCarScale: 0.7,
-                hasFog: true
-            };
         }
 
         function escapeHTML(str) {
