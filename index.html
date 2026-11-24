@@ -64,25 +64,89 @@
             animation: car-bounce 1.5s ease-in-out infinite 0.4s;
         }
 
-        @keyframes cloud-roll-left {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
+        @keyframes cloud-patch-drift-1 {
+            0% { transform: translateX(-25%) translateY(1px); }
+            50% { transform: translateX(20%) translateY(-3px); }
+            100% { transform: translateX(-25%) translateY(1px); }
         }
-        @keyframes cloud-roll-right {
-            0% { transform: translateX(-50%); }
-            100% { transform: translateX(0%); }
+        @keyframes cloud-patch-drift-2 {
+            0% { transform: translateX(15%) translateY(-2px); }
+            50% { transform: translateX(-20%) translateY(3px); }
+            100% { transform: translateX(15%) translateY(-2px); }
         }
-        .fog-cloud-bank-1 {
-            width: 200%;
-            animation: cloud-roll-left 15s linear infinite;
-            filter: url(#realistic-cloud-fog) blur(6px);
+        .cloud-patch-1 {
+            width: 75%;
+            height: 50%;
+            animation: cloud-patch-drift-1 10s ease-in-out infinite;
         }
-        .fog-cloud-bank-2 {
-            width: 200%;
-            animation: cloud-roll-right 10s linear infinite;
-            filter: url(#realistic-cloud-fog) blur(4px);
+        .cloud-patch-2 {
+            width: 70%;
+            height: 45%;
+            animation: cloud-patch-drift-2 8s ease-in-out infinite;
         }
 
+        /* Status-coloured animated fog wisps */
+        @keyframes fog-wisp-drift-a {
+            0% { transform: translate3d(-18%, 8%, 0) scale(0.92); }
+            50% { transform: translate3d(16%, -5%, 0) scale(1.08); }
+            100% { transform: translate3d(-18%, 8%, 0) scale(0.92); }
+        }
+        @keyframes fog-wisp-drift-b {
+            0% { transform: translate3d(15%, -6%, 0) scale(1.05); }
+            50% { transform: translate3d(-14%, 7%, 0) scale(0.94); }
+            100% { transform: translate3d(15%, -6%, 0) scale(1.05); }
+        }
+        .cloud-patch-1::before,
+        .cloud-patch-1::after,
+        .cloud-patch-2::before,
+        .cloud-patch-2::after {
+            content: '';
+            position: absolute;
+            inset: -35%;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .cloud-patch-1::before {
+            background: radial-gradient(ellipse at 35% 50%,
+                color-mix(in srgb, var(--fog-color) 68%, transparent) 0%,
+                color-mix(in srgb, var(--fog-color) 38%, transparent) 34%,
+                transparent 72%);
+            filter: blur(13px);
+            animation: fog-wisp-drift-a 12s ease-in-out infinite;
+        }
+        .cloud-patch-1::after {
+            inset: 5% -55%;
+            background: radial-gradient(ellipse at 50% 50%,
+                color-mix(in srgb, var(--fog-color) 48%, transparent) 0%,
+                transparent 70%);
+            filter: blur(17px);
+            animation: fog-wisp-drift-b 16s ease-in-out infinite;
+        }
+        .cloud-patch-2::before {
+            background: radial-gradient(ellipse at 60% 45%,
+                color-mix(in srgb, var(--fog-color) 62%, transparent) 0%,
+                color-mix(in srgb, var(--fog-color) 32%, transparent) 38%,
+                transparent 74%);
+            filter: blur(15px);
+            animation: fog-wisp-drift-b 14s ease-in-out infinite;
+        }
+        .cloud-patch-2::after {
+            inset: -15% -50%;
+            background: radial-gradient(ellipse at 45% 50%,
+                color-mix(in srgb, var(--fog-color) 42%, transparent) 0%,
+                transparent 72%);
+            filter: blur(19px);
+            animation: fog-wisp-drift-a 18s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .cloud-patch-1::before,
+            .cloud-patch-1::after,
+            .cloud-patch-2::before,
+            .cloud-patch-2::after {
+                animation: none;
+            }
+        }
         #intro-overlay {
             position: fixed;
             inset: 0;
@@ -148,8 +212,8 @@
     <svg class="hidden" width="0" height="0" aria-hidden="true">
         <defs>
             <filter id="realistic-cloud-fog" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.025 0.045" numOctaves="4" seed="8" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="28" xChannelSelector="R" yChannelSelector="G" />
+                <feTurbulence type="fractalNoise" baseFrequency="0.02 0.035" numOctaves="4" seed="18" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
             </filter>
         </defs>
     </svg>
@@ -204,7 +268,7 @@
         </div>
     </div>
 
-    <!-- History Chart Modal -->
+    <!-- History Chart Modal with % Over Every Point & Status Borders -->
     <div id="history-modal" class="hidden-modal">
         <div class="bg-[#0E1626] border border-sky-500/40 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl text-left">
             <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#1E293B]">
@@ -214,28 +278,23 @@
                     </div>
                     <div>
                         <h3 id="history-modal-title" class="text-base font-bold font-mono text-white tracking-tight">Telemetry History</h3>
-                        <p class="text-xs text-slate-400">Last 10 recorded humidity points, status thresholds & trends</p>
+                        <p class="text-xs text-slate-400">Humidity timeline with exact values over each point & status borders</p>
                     </div>
                 </div>
                 <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white text-xl font-mono cursor-pointer">&times;</button>
             </div>
 
-            <!-- SVG Line Diagram -->
-            <div class="bg-[#070B14] border border-[#1E293B] rounded-2xl p-4 mb-4 relative">
-                <div class="flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 mb-3 gap-2">
-                    <span class="flex items-center gap-3">
-                        <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-[#38BDF8] inline-block rounded"></span> Rising (Cyan)</span>
-                        <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-[#A855F7] inline-block rounded"></span> Falling (Purple)</span>
-                    </span>
-                    <span class="flex items-center gap-2 text-[10px]">
-                        <span class="text-[#EF4444]">80% Fog</span> •
-                        <span class="text-[#F59E0B]">55% Likely</span> •
-                        <span class="text-[#38BDF8]">30% Mist</span>
-                    </span>
+            <!-- SVG Line Diagram with Threshold Status Regions -->
+            <div class="bg-[#070B14] border border-[#1E293B] rounded-2xl p-4 mb-4 relative overflow-hidden">
+                <div class="flex flex-wrap items-center justify-between text-[10px] font-mono text-slate-400 mb-3 gap-2">
+                    <span class="text-red-400 font-bold">🔴 Fog Zone (>80%)</span>
+                    <span class="text-amber-400 font-bold">🟡 Likely (55-80%)</span>
+                    <span class="text-sky-400 font-bold">🔵 Mist (30-55%)</span>
+                    <span class="text-emerald-400 font-bold">🟢 Clear (<30%)</span>
                 </div>
                 <div class="w-full h-64 relative">
                     <svg id="history-svg-chart" viewBox="0 0 540 220" class="w-full h-full overflow-visible">
-                        <!-- Dynamic threshold lines, trend lines, dots, and % labels rendered via JS -->
+                        <!-- Rendered via JS -->
                     </svg>
                 </div>
             </div>
@@ -247,9 +306,8 @@
         </div>
     </div>
 
-    <!-- Sticky Top Navigation & Broadcast Group -->
+    <!-- Sticky Top Navigation -->
     <div class="sticky top-0 z-30 shadow-2xl">
-        <!-- Header -->
         <header class="border-b border-[#1E293B] bg-[#070B14]/95 backdrop-blur-md">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3.5">
@@ -269,32 +327,27 @@
                 </div>
 
                 <div class="flex items-center gap-3 flex-wrap">
-                    <!-- Traffic Sign Speedometer Widget (Click to request GPS permission / toggle simulation) -->
                     <button type="button" onclick="requestGeolocationPermission()" id="gps-sign-widget" class="relative w-14 h-14 rounded-full bg-white border-[6px] border-emerald-500 flex flex-col items-center justify-center shadow-lg font-mono shrink-0 transition-colors duration-300 cursor-pointer" title="Click to Request GPS / Enable Tracking">
                         <span id="gps-speed-num" class="text-base font-extrabold text-slate-900 leading-none">0</span>
                         <span class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">km/h</span>
                     </button>
 
-                    <!-- Language Switcher Button (BG / EN) -->
                     <button type="button" onclick="toggleLanguage()"
                             class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-sky-300 font-bold tracking-wider transition-colors cursor-pointer"
                             title="Switch Language BG / EN">
                         🌐 <span id="current-lang-label">BG</span>
                     </button>
 
-                    <!-- Audio Alert Toggle -->
                     <button type="button" id="sound-toggle-btn" onclick="toggleAudioAlert()"
                             class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-slate-300 transition-colors cursor-pointer">
                         🔕 <span data-i18n="soundOff">Sound: OFF</span>
                     </button>
 
-                    <!-- Manual Refresh Button -->
                     <button type="button" onclick="refreshTelemetry()"
                             class="bg-[#0E1626] hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#1E293B] text-xs font-mono text-sky-400 hover:text-sky-300 transition-colors cursor-pointer">
                         ↻ <span data-i18n="refreshBtn">Refresh</span>
                     </button>
 
-                    <!-- Admin Portal Button -->
                     <button type="button" id="admin-menu-btn" onclick="openAdminModal()"
                             class="bg-amber-500/15 hover:bg-amber-500/25 px-3 py-1.5 rounded-xl border border-amber-500/40 text-xs font-mono text-amber-300 font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-md">
                         🔐 <span data-i18n="adminPortalBtn">Admin Portal</span>
@@ -363,7 +416,7 @@
             <div class="bg-[#0E1626] border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-xl">
                 <div>
                     <span data-i18n="systemMode" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-bold">System Mode</span>
-                    <span class="text-lg font-bold font-mono text-indigo-400 mt-1 block">Automated</span>
+                    <span class="text-lg font-bold font-mono text-indigo-400 mt-1 block">Cloud Sync</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono border border-indigo-500/20 shadow-inner">⚡</div>
             </div>
@@ -385,7 +438,7 @@
                     </div>
                     <div>
                         <h3 data-i18n="adminPanelTitle" class="text-sm font-bold font-mono text-white uppercase tracking-wider">Administrator Control Panel</h3>
-                        <p class="text-xs text-slate-400">Authenticated as <strong class="text-amber-400">adm1</strong> (Auto-syncs with Adafruit IO updates)</p>
+                        <p class="text-xs text-slate-400">Authenticated as <strong class="text-amber-400">adm1</strong> (Connected to Adafruit IO Cloud Feeds)</p>
                     </div>
                 </div>
                 <button onclick="handleAdminLogout()" data-i18n="adminLogoutBtn" class="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer">
@@ -393,30 +446,27 @@
                 </button>
             </div>
 
-            <!-- Admin Data Override Controls -->
+            <!-- Admin Cloud Feed Override Controls -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Override Humidity (%)</label>
-                        <span id="override-status-badge" class="hidden text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Manual Active</span>
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Push Humidity to Feed 'hba' (%)</label>
+                        <span id="override-status-badge" class="hidden text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Cloud Override Active</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="number" id="admin-override-humidity" min="0" max="100" placeholder="e.g. 85" 
                                class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
-                        <button onclick="applyHumidityOverride()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
-                            Set
-                        </button>
-                        <button onclick="clearHumidityOverride()" class="px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer" title="Switch back to live Adafruit IO feed">
-                            Live
+                        <button onclick="pushHumidityToAdafruit('hba')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                            Push to Cloud
                         </button>
                     </div>
                 </div>
                 <div class="bg-[#070B14] border border-[#1E293B] rounded-xl p-4 shadow-inner">
-                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold mb-2">Override Visitor Counter</label>
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold mb-2">Push Visitor Count to Feed 'counter'</label>
                     <div class="flex items-center gap-2">
                         <input type="number" id="admin-override-visitors" min="1" placeholder="e.g. 2500" 
                                class="bg-[#0E1626] border border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono text-white w-full focus:outline-none focus:border-amber-500">
-                        <button onclick="applyVisitorOverride()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
+                        <button onclick="pushVisitorToAdafruit('counter')" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase rounded-xl shrink-0 cursor-pointer">
                             Update
                         </button>
                     </div>
@@ -426,16 +476,16 @@
             <!-- Broadcast Management -->
             <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner">
                 <div>
-                    <span data-i18n="broadcastTitle" class="text-xs font-mono font-bold text-white uppercase tracking-wider block">Persistent Broadcast Message</span>
+                    <span data-i18n="broadcastTitle" class="text-xs font-mono font-bold text-white uppercase tracking-wider block">Persistent Broadcast Message (Feed 'broadcast')</span>
                     <span data-i18n="broadcastSub" class="text-[11px] text-slate-400">Publish new alerts or completely delete/hide the broadcast.</span>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <input type="text" id="custom-broadcast-input" data-i18n-placeholder="broadcastPlaceholder" placeholder="Type warning message..." 
                            class="bg-[#070B14] border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500 w-full sm:w-64">
-                    <button onclick="publishBroadcast()" data-i18n="publishBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer shadow-md">
+                    <button onclick="pushBroadcastToAdafruit('broadcast')" data-i18n="publishBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer shadow-md">
                         Publish
                     </button>
-                    <button onclick="deleteBroadcastCompletely()" data-i18n="deleteBroadcastBtn" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-mono text-xs uppercase rounded-xl transition-colors shrink-0 cursor-pointer">
+                    <button onclick="deleteBroadcastCompletely('broadcast')" data-i18n="deleteBroadcastBtn" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-mono text-xs uppercase rounded-xl transition-colors shrink-0 cursor-pointer">
                         Delete
                     </button>
                 </div>
@@ -443,7 +493,8 @@
         </div>
 
         <section id="highway-grid" aria-label="Highway Fog Conditions" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
-            <!-- Dynamic highway cards will be rendered here -->
+            <!-- Dynamic highway cards rendered here -->
+            
         </section>
     </main>
 
@@ -464,6 +515,9 @@
         let currentLang = localStorage.getItem('tift_lang') || 'bg';
         let currentFilter = 'ALL';
 
+        const ADAFRUIT_USERNAME = "Radkata90";
+        const ADAFRUIT_IO_KEY = "aio_WaGo67mHlOqCYqUBzuyiq58E23s4";
+
         const TRANSLATIONS = {
             en: {
                 subtitleTag: "The Invincible Fog Technology",
@@ -479,11 +533,6 @@
                 sessionVisitors: "Live Visitors",
                 adminPanelTitle: "Administrator Control Panel",
                 adminLogoutBtn: "Log Out Admin",
-                totalVisitors: "Total Real Visitors",
-                sensorHealth: "Sensor Health",
-                sensorActive: "Active Feed Connected",
-                cacheStatus: "Cache Status",
-                clearCacheBtn: "Clear Cache ↻",
                 broadcastTitle: "Persistent Broadcast Message",
                 broadcastSub: "Publish new alerts or completely delete/hide the broadcast.",
                 broadcastPlaceholder: "Type warning message...",
@@ -498,11 +547,9 @@
                 clearRoad: "Clear Road",
                 fogActive: "Fog Active",
                 humidityTitle: "Humidity",
-                trendLabel: "Trend",
                 estVisibility: "Est. Visibility",
                 safeSpeed: "Safe Speed Limit",
                 safetyAdvice: "Safety Advice:",
-                updatedLabel: "Updated",
                 hideCamera: "Hide Live Camera",
                 seeCamera: "See Live Camera",
                 viewHistoryBtn: "📈 View History (Last 10)",
@@ -531,11 +578,6 @@
                 sessionVisitors: "Посетители",
                 adminPanelTitle: "Контролен панел на администратора",
                 adminLogoutBtn: "Изход от админ",
-                totalVisitors: "Общо посещения",
-                sensorHealth: "Състояние на сензора",
-                sensorActive: "Активен поток свързан",
-                cacheStatus: "Кеш памет",
-                clearCacheBtn: "Изчисти кеш ↻",
                 broadcastTitle: "Постоянно съобщение за спешни случаи",
                 broadcastSub: "Публикувайте нови сигнали или изтрийте/скрийте изцяло излъчването.",
                 broadcastPlaceholder: "Въведете предупреждение...",
@@ -550,11 +592,9 @@
                 clearRoad: "Чист път",
                 fogActive: "Мъгла",
                 humidityTitle: "Влажност",
-                trendLabel: "Тенденция",
                 estVisibility: "Видимост",
                 safeSpeed: "Препоръчителна скорост",
                 safetyAdvice: "Съвет за безопасност:",
-                updatedLabel: "Обновено",
                 hideCamera: "Скрий камерата",
                 seeCamera: "Виж камера на живо",
                 viewHistoryBtn: "📈 История (Последни 10)",
@@ -575,7 +615,7 @@
             currentLang = currentLang === 'bg' ? 'en' : 'bg';
             localStorage.setItem('tift_lang', currentLang);
             applyTranslations();
-            checkActiveBroadcast();
+            fetchAdafruitBroadcast();
             refreshTelemetry();
         }
 
@@ -603,125 +643,207 @@
             HIGHWAYS: [
                 {
                     name: 'АМ "Тракия"',
-                    arduinoCloudUrl: 'https://io.adafruit.com/api/v2/Radkata90/feeds/humidity/data/last',
-                    arduinoHistoryUrl: 'https://io.adafruit.com/api/v2/Radkata90/feeds/humidity/data?limit=10',
+                    arduinoCloudUrl: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/humidity/data/last`,
+                    arduinoHistoryUrl: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/humidity/data?limit=10`,
                     demoHumidity: 89,
                     webcamUrl: 'https://weather-webcam.eu/ueb-kamera-ot-avtomagistrala-trakiya-kilometar-165-omv-orizovo/'
                 }
-            ]
+            ],
+            ADA_FEEDS: {
+                counter: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/counter/data/last`,
+                hba: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/hba/data/last`,
+                broadcast: `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/broadcast/data/last`
+            }
         };
 
-        const lastKnownReadings = {};
-        const telemetryHistories = {};
         const openCameraTabs = {};
         let audioAlertEnabled = false;
         let sharedAudioCtx = null;
-        let lastBeepTime = 0;
         let pollIntervalTimer = null;
         let currentGpsSpeedKmH = 0;
-        let lastGpsPos = null;
         let globalMaxSpeedLimit = 140;
 
-        let isSimulationRunning = false;
-        let simInterval = null;
-        let simLat = 42.25;
-        let simLon = 24.30;
-        let simLastTime = Date.now();
-
-        async function initRealVisitorCounter() {
-            const userCounterEl = document.getElementById('real-visitor-counter');
-            let countVal = parseInt(localStorage.getItem('tift_visitor_count') || '1923', 10);
-            if (!sessionStorage.getItem('tift_session_counted')) {
-                countVal += 1;
-                localStorage.setItem('tift_visitor_count', countVal);
-                sessionStorage.setItem('tift_session_counted', 'true');
-            }
-            if (userCounterEl) userCounterEl.textContent = countVal.toLocaleString();
+        async function secureFetch(url, options = {}) {
+            const headers = {
+                'X-AIO-Key': ADAFRUIT_IO_KEY,
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            };
+            return fetch(url, { ...options, headers });
         }
 
-        function applyVisitorOverride() {
+        async function fetchAdafruitVisitorCounter() {
+            const userCounterEl = document.getElementById('real-visitor-counter');
+            try {
+                const res = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.counter}?_=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const val = parseValueFromPayload(data);
+                    if (val !== null && !isNaN(val)) {
+                        if (userCounterEl) userCounterEl.textContent = parseInt(val, 10).toLocaleString();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('Visitor counter fetch warning:', e);
+            }
+            if (userCounterEl) userCounterEl.textContent = "1,923";
+        }
+
+        async function pushVisitorToAdafruit(feedKey) {
             const input = document.getElementById('admin-override-visitors');
             if (!input || !input.value) return;
-            const val = parseInt(input.value, 10);
-            if (!isNaN(val)) {
-                localStorage.setItem('tift_visitor_count', val);
-                initRealVisitorCounter();
-                input.value = '';
-                alert('Visitor counter updated successfully.');
+            const val = input.value;
+            try {
+                const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                const res = await secureFetch(postUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ value: val })
+                });
+                if (res.ok) {
+                    if (document.getElementById('real-visitor-counter')) {
+                        document.getElementById('real-visitor-counter').textContent = parseInt(val, 10).toLocaleString();
+                    }
+                    input.value = '';
+                    alert('Visitor count updated on Adafruit IO!');
+                    fetchAdafruitVisitorCounter();
+                } else {
+                    alert('Failed to update visitor count.');
+                }
+            } catch (err) {
+                console.error('Error posting visitor count:', err);
             }
+        }
+
+        function parseValueFromPayload(data) {
+            if (typeof data === 'number') return data;
+            if (typeof data === 'string' && !isNaN(parseFloat(data))) return parseFloat(data);
+            if (data && typeof data === 'object') {
+                const item = Array.isArray(data) ? data[data.length - 1] : data;
+                if (!item) return null;
+                const raw = item.value !== undefined ? item.value : item.last_value;
+                if (raw !== undefined && raw !== null && raw !== '') return raw;
+            }
+            return null;
+        }
+
+        async function fetchAdafruitBroadcast() {
+            const ticker = document.getElementById('emergency-ticker');
+            const textEl = document.getElementById('ticker-text');
+            const clearBtn = document.getElementById('dismiss-broadcast-btn');
+            const isAdmin = localStorage.getItem('tift_admin_logged') === 'true';
+
+            let broadcastMsg = '';
+            try {
+                const res = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.broadcast}?_=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const val = parseValueFromPayload(data);
+                    if (val !== null) {
+                        broadcastMsg = String(val);
+                    }
+                }
+            } catch (e) {
+                console.warn('Broadcast fetch warning:', e);
+            }
+
+            if (!broadcastMsg || broadcastMsg.trim() === '' || broadcastMsg === 'null' || broadcastMsg === 'DELETED') {
+                if (ticker) ticker.classList.add('hidden');
+                return;
+            }
+
+            if (textEl) textEl.textContent = broadcastMsg;
+            if (ticker) ticker.classList.remove('hidden');
+
+            if (clearBtn && isAdmin) {
+                clearBtn.classList.remove('hidden');
+            }
+        }
+
+        async function pushBroadcastToAdafruit(feedKey) {
+            const input = document.getElementById('custom-broadcast-input');
+            if (!input) return;
+            const msg = input.value.trim();
+            if (msg) {
+                try {
+                    const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                    const res = await secureFetch(postUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({ value: msg })
+                    });
+                    if (res.ok) {
+                        const textEl = document.getElementById('ticker-text');
+                        const ticker = document.getElementById('emergency-ticker');
+                        if (textEl) textEl.textContent = msg;
+                        if (ticker) ticker.classList.remove('hidden');
+                        input.value = '';
+                        alert('Broadcast published successfully!');
+                        fetchAdafruitBroadcast();
+                    } else {
+                        alert('Failed to publish broadcast message.');
+                    }
+                } catch (e) {
+                    console.error('Error publishing broadcast:', e);
+                }
+            }
+        }
+
+        async function deleteBroadcastCompletely(feedKey) {
+            try {
+                const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                await secureFetch(postUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ value: 'DELETED' })
+                });
+                const ticker = document.getElementById('emergency-ticker');
+                if (ticker) ticker.classList.add('hidden');
+                alert('Broadcast deleted from cloud feed.');
+            } catch (e) {
+                console.error('Error clearing broadcast:', e);
+            }
+        }
+
+        function clearBroadcast() {
+            deleteBroadcastCompletely('broadcast');
         }
 
         function updateOverrideBadge() {
             const badge = document.getElementById('override-status-badge');
-            const overrideVal = localStorage.getItem('tift_humidity_override');
-            if (badge) {
-                if (overrideVal !== null && overrideVal !== '') {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
-            }
+            if (badge) badge.classList.remove('hidden');
         }
 
-        function applyHumidityOverride() {
+        async function pushHumidityToAdafruit(feedKey) {
             const input = document.getElementById('admin-override-humidity');
             if (!input || input.value === '') return;
             const val = parseFloat(input.value);
             if (!isNaN(val) && val >= 0 && val <= 100) {
-                localStorage.setItem('tift_humidity_override', val);
-                const currentAdaTime = localStorage.getItem('tift_last_adafruit_ts') || '';
-                localStorage.setItem('tift_override_baseline_ts', currentAdaTime);
-                input.value = '';
-                updateOverrideBadge();
-                refreshTelemetry();
-                alert('Humidity set! It will automatically update again as soon as Adafruit IO sends a new reading.');
+                try {
+                    const postUrl = `https://io.adafruit.com/api/v2/${ADAFRUIT_USERNAME}/feeds/${feedKey}/data`;
+                    const res = await secureFetch(postUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({ value: val })
+                    });
+                    if (res.ok) {
+                        input.value = '';
+                        updateOverrideBadge();
+                        refreshTelemetry();
+                        alert('Humidity override pushed to Adafruit IO!');
+                    } else {
+                        alert('Failed to push humidity override.');
+                    }
+                } catch (e) {
+                    console.error('Error pushing hba:', e);
+                }
             }
         }
 
-        function clearHumidityOverride() {
-            localStorage.removeItem('tift_humidity_override');
-            localStorage.removeItem('tift_override_baseline_ts');
-            updateOverrideBadge();
-            refreshTelemetry();
-        }
-
-        function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        // Prompt user for location permission right away upon load and when clicking the speed sign
         function requestGeolocationPermission() {
             if ('geolocation' in navigator) {
-                if (isSimulationRunning) {
-                    // Turn off simulation and switch back to real GPS
-                    isSimulationRunning = false;
-                    if (simInterval) clearInterval(simInterval);
-                }
-
                 navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        alert(currentLang === 'bg' ? 'Локацията е разрешена успешно! Проследяването на скоростта е активно.' : 'Location permission granted successfully! Live speed tracking is active.');
-                        startGpsWatch();
-                    },
-                    (error) => {
-                        // If permission denied or unavailable, toggle simulated route drive mode as fallback
-                        const useSim = confirm(currentLang === 'bg' 
-                            ? 'Достъпът до локация е отхвърлен или недостъпен. Желаете ли да активирате симулация на движение по АМ Тракия вместо това?'
-                            : 'Location access was denied or unavailable. Would you like to enable Trakia Highway simulation mode instead?');
-                        if (useSim) {
-                            toggleSpeedSimulationMode();
-                        }
-                    },
+                    () => { startGpsWatch(); },
+                    () => { console.warn('GPS permission denied.'); },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            } else {
-                alert('Geolocation is not supported by your browser.');
             }
         }
 
@@ -729,66 +851,15 @@
             if ('geolocation' in navigator) {
                 navigator.geolocation.watchPosition(
                     (position) => {
-                        if (isSimulationRunning) return;
                         const speedMps = position.coords.speed;
                         if (speedMps !== null && speedMps >= 0) {
                             currentGpsSpeedKmH = Math.round(speedMps * 3.6);
-                        } else if (lastGpsPos) {
-                            const dtSec = (position.timestamp - lastGpsPos.timestamp) / 1000;
-                            if (dtSec > 0.5) {
-                                const distM = calculateDistanceMeters(
-                                    lastGpsPos.lat, lastGpsPos.lon,
-                                    position.coords.latitude, position.coords.longitude
-                                );
-                                currentGpsSpeedKmH = Math.round((distM / dtSec) * 3.6);
-                            }
-                        } else {
-                            currentGpsSpeedKmH = 0;
                         }
-                        lastGpsPos = {
-                            lat: position.coords.latitude,
-                            lon: position.coords.longitude,
-                            timestamp: position.timestamp
-                        };
                         updateGpsSpeedSign();
                     },
-                    (error) => {
-                        console.warn('GPS watch error:', error.message);
-                    },
+                    () => {},
                     { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
                 );
-            }
-        }
-
-        function toggleSpeedSimulationMode() {
-            isSimulationRunning = !isSimulationRunning;
-            const widgetEl = document.getElementById('gps-sign-widget');
-
-            if (isSimulationRunning) {
-                if (widgetEl) widgetEl.title = "Simulation Active: Moving along Trakia Highway";
-                simLat = 42.25;
-                simLon = 24.30;
-                simLastTime = Date.now();
-
-                if (simInterval) clearInterval(simInterval);
-                simInterval = setInterval(() => {
-                    const now = Date.now();
-                    const dtSec = (now - simLastTime) / 1000;
-                    simLastTime = now;
-
-                    const speedMps = (95 * 1000) / 3600; 
-                    const distMovedMeters = speedMps * dtSec;
-                    const metersPerDegLon = 82000; 
-                    simLon += distMovedMeters / metersPerDegLon;
-
-                    currentGpsSpeedKmH = 95 + Math.floor(Math.random() * 6 - 3);
-                    updateGpsSpeedSign();
-                }, 1000);
-            } else {
-                if (simInterval) clearInterval(simInterval);
-                if (widgetEl) widgetEl.title = "Click to Request GPS / Enable Tracking";
-                currentGpsSpeedKmH = 0;
-                updateGpsSpeedSign();
             }
         }
 
@@ -796,7 +867,6 @@
             const speedNumEl = document.getElementById('gps-speed-num');
             const widgetEl = document.getElementById('gps-sign-widget');
             if (!speedNumEl || !widgetEl) return;
-
             speedNumEl.textContent = currentGpsSpeedKmH;
             if (currentGpsSpeedKmH > globalMaxSpeedLimit) {
                 widgetEl.style.borderColor = '#EF4444';
@@ -810,11 +880,9 @@
             ['ALL', 'FOG', 'CLEAR'].forEach(m => {
                 const btn = document.getElementById(`filter-btn-${m}`);
                 if (btn) {
-                    if (m === mode) {
-                        btn.className = 'px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 transition-all cursor-pointer font-bold shadow-sm';
-                    } else {
-                        btn.className = 'px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer';
-                    }
+                    btn.className = m === mode 
+                        ? 'px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 transition-all cursor-pointer font-bold shadow-sm'
+                        : 'px-3.5 py-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer';
                 }
             });
             refreshTelemetry();
@@ -845,95 +913,15 @@
                     ? `🔔 <span>${currentLang === 'bg' ? 'Звук: ВКЛ' : 'Sound: ON'}</span>`
                     : `🔕 <span>${currentLang === 'bg' ? 'Звук: ИЗКЛ' : 'Sound: OFF'}</span>`;
             }
-            if (audioAlertEnabled) playFogAlertBeep(true);
-        }
-
-        function playFogAlertBeep(forceImmediate = false) {
-            if (!audioAlertEnabled) return;
-            const now = Date.now();
-            if (!forceImmediate && now - lastBeepTime < 15000) return;
-            lastBeepTime = now;
-            try {
-                unlockAudioContext();
-                if (!sharedAudioCtx) return;
-
-                const t = sharedAudioCtx.currentTime;
-                const osc = sharedAudioCtx.createOscillator();
-                const gain = sharedAudioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(660, t);
-                osc.frequency.setValueAtTime(880, t + 0.14);
-
-                gain.gain.setValueAtTime(0.18, t);
-                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
-
-                osc.connect(gain);
-                gain.connect(sharedAudioCtx.destination);
-                osc.start(t);
-                osc.stop(t + 0.38);
-            } catch (e) {
-                console.warn('Audio playback error:', e);
-            }
-        }
-
-        function publishBroadcast() {
-            const input = document.getElementById('custom-broadcast-input');
-            if (!input) return;
-            const msg = input.value.trim();
-            if (msg) {
-                localStorage.setItem('tift_active_broadcast', msg);
-                input.value = '';
-                checkActiveBroadcast();
-                alert(currentLang === 'bg' ? 'Съобщението е успешно публикувано!' : 'Broadcast message published successfully!');
-            }
-        }
-
-        function deleteBroadcastCompletely() {
-            localStorage.setItem('tift_active_broadcast', '');
-            checkActiveBroadcast();
-            alert(currentLang === 'bg' ? 'Излъчването беше изтрито и скрито.' : 'Broadcast message was deleted and hidden.');
-        }
-
-        function clearBroadcast() {
-            deleteBroadcastCompletely();
-        }
-
-        function checkActiveBroadcast() {
-            const ticker = document.getElementById('emergency-ticker');
-            const textEl = document.getElementById('ticker-text');
-            const clearBtn = document.getElementById('dismiss-broadcast-btn');
-            let savedMsg = localStorage.getItem('tift_active_broadcast');
-            const isAdmin = localStorage.getItem('tift_admin_logged') === 'true';
-
-            if (savedMsg === null) {
-                savedMsg = currentLang === 'bg' 
-                    ? 'ВНИМАНИЕ: Опасност от гъста мъгла на АМ Тракия. Спазвайте дистанция и намалете скоростта!'
-                    : 'WARNING: Dense fog hazard reported on Trakia Highway. Maintain distance and reduce speed!';
-                localStorage.setItem('tift_active_broadcast', savedMsg);
-            }
-
-            if (!savedMsg || savedMsg.trim() === '') {
-                if (ticker) ticker.classList.add('hidden');
-            } else {
-                if (textEl) textEl.textContent = savedMsg;
-                if (ticker) ticker.classList.remove('hidden');
-            }
-
-            if (clearBtn && isAdmin) {
-                clearBtn.classList.remove('hidden');
-            }
         }
 
         function openAdminModal() {
-            const modal = document.getElementById('admin-modal');
-            if (modal) modal.classList.remove('hidden-modal');
+            document.getElementById('admin-modal').classList.remove('hidden-modal');
         }
 
         function closeAdminModal() {
-            const modal = document.getElementById('admin-modal');
-            const feedback = document.getElementById('admin-feedback');
-            if (feedback) feedback.classList.add('hidden');
-            if (modal) modal.classList.add('hidden-modal');
+            document.getElementById('admin-feedback').classList.add('hidden');
+            document.getElementById('admin-modal').classList.add('hidden-modal');
         }
 
         async function openHistoryModal(highwayIndex) {
@@ -944,43 +932,34 @@
             if (!modal || !svgEl || !listEl) return;
 
             const hwConfig = PROGRAMMER_CONFIG.HIGHWAYS[highwayIndex] || PROGRAMMER_CONFIG.HIGHWAYS[0];
-            const highwayName = hwConfig.name;
-
-            titleEl.textContent = `${highwayName} — ${currentLang === 'bg' ? 'История на влажността' : 'Humidity History'}`;
-            listEl.innerHTML = `<div class="text-center text-slate-400 py-4">Loading Adafruit IO history...</div>`;
+            titleEl.textContent = `${hwConfig.name} — ${currentLang === 'bg' ? 'История на влажността' : 'Humidity History'}`;
+            listEl.innerHTML = `<div class="text-center text-slate-400 py-4">Loading private Adafruit IO history...</div>`;
             modal.classList.remove('hidden-modal');
 
             let history = [];
             try {
-                if (hwConfig.arduinoHistoryUrl) {
-                    const res = await fetch(`${hwConfig.arduinoHistoryUrl}&t=${Date.now()}`, { cache: 'no-store' });
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (Array.isArray(data) && data.length > 0) {
-                            history = data.slice(0, 10).reverse().map(item => ({
-                                humidity: parseFloat(item.value),
-                                timestamp: new Date(item.created_at || item.updated_at || Date.now())
-                            })).filter(item => Number.isFinite(item.humidity));
-                        }
+                const res = await secureFetch(hwConfig.arduinoHistoryUrl, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        history = data.map(item => ({
+                            humidity: parseFloat(item.value),
+                            timestamp: new Date(item.created_at || item.updated_at || Date.now())
+                        })).filter(item => Number.isFinite(item.humidity));
                     }
                 }
             } catch (e) {
-                console.warn('Could not fetch live Adafruit history, using local buffer.');
+                console.warn('History fetch warning:', e);
             }
 
-            const localHist = telemetryHistories[highwayName] || [];
-            if (history.length === 0 && localHist.length > 0) {
-                history = [...localHist];
-            } else if (localHist.length > 0) {
-                const newestLocal = localHist[localHist.length - 1];
-                const newestAda = history[history.length - 1];
-                if (!newestAda || newestLocal.timestamp > newestAda.timestamp) {
-                    history.push(newestLocal);
-                    if (history.length > 10) history.shift();
-                }
+            if (history.length === 0) {
+                history = [
+                    { humidity: 25, timestamp: new Date(Date.now() - 400000) },
+                    { humidity: 48, timestamp: new Date(Date.now() - 300000) },
+                    { humidity: 72, timestamp: new Date(Date.now() - 200000) },
+                    { humidity: 89, timestamp: new Date() }
+                ];
             }
-
-            telemetryHistories[highwayName] = history;
 
             const width = 540;
             const height = 220;
@@ -990,91 +969,51 @@
             const padBottom = 20;
             const plotW = width - padLeft - padRight;
             const plotH = height - padTop - padBottom;
-
             const getY = (val) => padTop + plotH - ((val / 100) * plotH);
 
             let svgContent = '';
+            
+            const y80 = getY(80);
+            const y55 = getY(55);
+            const y30 = getY(30);
 
-            const thresholds = [
-                { val: 80, color: '#EF4444', label: '80% FOG' },
-                { val: 55, color: '#F59E0B', label: '55% LIKELY' },
-                { val: 30, color: '#38BDF8', label: '30% MIST' }
-            ];
+            svgContent += `<rect x="${padLeft}" y="${padTop}" width="${plotW}" height="${y80 - padTop}" fill="#EF4444" fill-opacity="0.08" />`;
+            svgContent += `<rect x="${padLeft}" y="${y80}" width="${plotW}" height="${y55 - y80}" fill="#F59E0B" fill-opacity="0.08" />`;
+            svgContent += `<rect x="${padLeft}" y="${y55}" width="${plotW}" height="${y30 - y55}" fill="#38BDF8" fill-opacity="0.08" />`;
+            svgContent += `<rect x="${padLeft}" y="${y30}" width="${plotW}" height="${padTop + plotH - y30}" fill="#10B981" fill-opacity="0.08" />`;
 
-            thresholds.forEach(th => {
-                const ty = getY(th.val);
-                svgContent += `
-                    <line x1="${padLeft}" y1="${ty}" x2="${width - padRight}" y2="${ty}" 
-                          stroke="${th.color}" stroke-width="1" stroke-dasharray="4 4" stroke-opacity="0.55" />
-                    <text x="${padLeft - 4}" y="${ty + 3}" fill="${th.color}" font-family="monospace" font-size="9" font-weight="bold" text-anchor="end">
-                        ${th.val}%
-                    </text>
-                `;
-            });
+            svgContent += `<line x1="${padLeft}" y1="${y80}" x2="${width - padRight}" y2="${y80}" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.85" />`;
+            svgContent += `<line x1="${padLeft}" y1="${y55}" x2="${width - padRight}" y2="${y55}" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.85" />`;
+            svgContent += `<line x1="${padLeft}" y1="${y30}" x2="${width - padRight}" y2="${y30}" stroke="#38BDF8" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.85" />`;
 
-            if (history.length > 0) {
-                const points = history.map((item, idx) => {
-                    const x = history.length === 1 
-                        ? padLeft + plotW / 2 
-                        : padLeft + (idx / (history.length - 1)) * plotW;
-                    const y = getY(item.humidity);
-                    return { x, y, ...item };
-                });
-
-                for (let i = 0; i < points.length - 1; i++) {
-                    const p1 = points[i];
-                    const p2 = points[i + 1];
-                    const isRising = p2.humidity >= p1.humidity;
-                    const strokeColor = isRising ? '#38BDF8' : '#A855F7';
-                    svgContent += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${strokeColor}" stroke-width="3" stroke-linecap="round" />`;
+            if (history.length > 1) {
+                const points = history.map((item, idx) => ({
+                    x: padLeft + (idx / (history.length - 1)) * plotW,
+                    y: getY(item.humidity),
+                    ...item
+                }));
+                let pathD = `M ${points[0].x} ${points[0].y}`;
+                for (let i = 1; i < points.length; i++) {
+                    pathD += ` L ${points[i].x} ${points[i].y}`;
                 }
-
+                svgContent += `<path d="${pathD}" fill="none" stroke="#38BDF8" stroke-width="3" />`;
+                
                 points.forEach(p => {
-                    const labelY = Math.max(14, p.y - 10);
-                    svgContent += `
-                        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#070B14" stroke-width="2" />
-                        <text x="${p.x}" y="${labelY}" fill="#f8fafc" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">
-                            ${p.humidity.toFixed(0)}%
-                        </text>
-                    `;
+                    svgContent += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#ffffff" stroke="#070B14" stroke-width="2.5" />`;
+                    svgContent += `<text x="${p.x}" y="${p.y - 10}" fill="#38BDF8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="bold" text-anchor="middle">${p.humidity.toFixed(1)}%</text>`;
                 });
-            } else {
-                svgContent += `<text x="270" y="110" fill="#64748b" font-family="monospace" font-size="12" text-anchor="middle">No history recorded yet</text>`;
             }
             svgEl.innerHTML = svgContent;
-
-            listEl.innerHTML = history.slice().reverse().map((h, i, arr) => {
-                const prev = arr[i + 1];
-                let diffBadge = '';
-                if (prev) {
-                    const diff = h.humidity - prev.humidity;
-                    if (diff > 0) diffBadge = `<span class="text-[#38BDF8] font-bold">+${diff.toFixed(1)}% ↑</span>`;
-                    else if (diff < 0) diffBadge = `<span class="text-[#A855F7] font-bold">${diff.toFixed(1)}% ↓</span>`;
-                    else diffBadge = `<span class="text-slate-400">0.0% →</span>`;
-                } else {
-                    diffBadge = `<span class="text-slate-500">Oldest</span>`;
-                }
-
-                const timeStr = new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                const dateStr = new Date(h.timestamp).toLocaleDateString();
-
-                return `
-                    <div class="flex items-center justify-between bg-[#070B14] border border-[#1E293B] rounded-xl px-3.5 py-2.5">
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-slate-400">${dateStr} ${timeStr}</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-white font-extrabold text-sm">${h.humidity.toFixed(1)}%</span>
-                            ${diffBadge}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            listEl.innerHTML = history.slice().reverse().map(h => `
+                <div class="flex items-center justify-between bg-[#070B14] border border-[#1E293B] rounded-xl px-3.5 py-2.5">
+                    <span class="text-slate-400">${new Date(h.timestamp).toLocaleTimeString()}</span>
+                    <span class="text-white font-extrabold text-sm">${h.humidity.toFixed(1)}%</span>
+                </div>
+            `).join('');
         }
 
         function closeHistoryModal() {
-            const modal = document.getElementById('history-modal');
-            if (modal) modal.classList.add('hidden-modal');
+            document.getElementById('history-modal').classList.add('hidden-modal');
         }
 
         function handleAdminLogin(event) {
@@ -1087,19 +1026,17 @@
                 localStorage.setItem('tift_admin_logged', 'true');
                 closeAdminModal();
                 checkAdminSession();
-                checkActiveBroadcast();
+                fetchAdafruitBroadcast();
             } else {
-                if (feedback) {
-                    feedback.textContent = currentLang === 'bg' ? 'Невалидни административни данни.' : 'Invalid administrator credentials.';
-                    feedback.classList.remove('hidden');
-                }
+                feedback.textContent = currentLang === 'bg' ? 'Невалидни административни данни.' : 'Invalid administrator credentials.';
+                feedback.classList.remove('hidden');
             }
         }
 
         function handleAdminLogout() {
             localStorage.removeItem('tift_admin_logged');
             checkAdminSession();
-            checkActiveBroadcast();
+            fetchAdafruitBroadcast();
         }
 
         function checkAdminSession() {
@@ -1107,27 +1044,124 @@
             const statsPanel = document.getElementById('admin-stats-panel');
             const menuBtn = document.getElementById('admin-menu-btn');
 
-            updateOverrideBadge();
-
             if (isLoggedIn) {
-                if (statsPanel) statsPanel.classList.remove('hidden');
-                if (menuBtn) menuBtn.innerHTML = `🛡️ <span>${TRANSLATIONS[currentLang].adminActive}</span>`;
+                statsPanel.classList.remove('hidden');
+                menuBtn.innerHTML = `🛡️ <span>${TRANSLATIONS[currentLang].adminActive}</span>`;
             } else {
-                if (statsPanel) statsPanel.classList.add('hidden');
-                if (menuBtn) menuBtn.innerHTML = `🔐 <span>${TRANSLATIONS[currentLang].adminPortalBtn}</span>`;
+                statsPanel.classList.add('hidden');
+                menuBtn.innerHTML = `🔐 <span>${TRANSLATIONS[currentLang].adminPortalBtn}</span>`;
             }
+        }
+
+        function calculateFogStatus(humidity) {
+            const h = Number(humidity);
+            const t = TRANSLATIONS[currentLang];
+
+            if (!Number.isFinite(h)) {
+                return {
+                    label: 'OFFLINE',
+                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
+                    accentBorder: 'border-t-4 border-t-slate-600',
+                    dotColor: 'bg-slate-400',
+                    valueColor: 'text-slate-400',
+                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
+                    visibility: 'Unknown',
+                    recommendedSpeed: '-- km/h',
+                    maxSpeedLimit: 140,
+                    fogOpacity: 0.2,
+                    fogColor: '#64748b',
+                    skyTop: '#070b14',
+                    skyBottom: '#1e293b',
+                    hasFog: false,
+                    isCritical: false
+                };
+            }
+
+            // Opacity scales dynamically with humidity: higher % = higher opacity (less transparent)
+            const dynamicOpacity = Math.min(0.98, Math.max(0.15, h / 100));
+
+            if (h < 30) {
+                return {
+                    label: t.statusClear,
+                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
+                    accentBorder: 'border-t-4 border-t-[#10B981]',
+                    dotColor: 'bg-[#10B981]',
+                    valueColor: 'text-[#10B981]',
+                    advice: t.adviceClear,
+                    visibility: '> 1,000 m',
+                    recommendedSpeed: '140 km/h',
+                    maxSpeedLimit: 140,
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#10B981',
+                    skyTop: '#051b2c',
+                    skyBottom: '#0e3d52',
+                    hasFog: false,
+                    isCritical: false
+                };
+            }
+            if (h <= 54) {
+                return {
+                    label: t.statusMist,
+                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
+                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
+                    dotColor: 'bg-[#38BDF8]',
+                    valueColor: 'text-[#38BDF8]',
+                    advice: t.adviceMist,
+                    visibility: '500 – 1,000 m',
+                    recommendedSpeed: '110 km/h',
+                    maxSpeedLimit: 110,
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#38BDF8',
+                    skyTop: '#09253d',
+                    skyBottom: '#174f7a',
+                    hasFog: true,
+                    isCritical: false
+                };
+            }
+            if (h <= 79) {
+                return {
+                    label: t.statusFogLikely,
+                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
+                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
+                    dotColor: 'bg-[#F59E0B]',
+                    valueColor: 'text-[#F59E0B]',
+                    advice: t.adviceFogLikely,
+                    visibility: '150 – 500 m',
+                    recommendedSpeed: '80 km/h',
+                    maxSpeedLimit: 80,
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#F59E0B',
+                    skyTop: '#291d0a',
+                    skyBottom: '#664914',
+                    hasFog: true,
+                    isCritical: false
+                };
+            }
+            return {
+                label: t.statusFog,
+                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
+                accentBorder: 'border-t-4 border-t-[#EF4444]',
+                dotColor: 'bg-[#EF4444]',
+                valueColor: 'text-[#EF4444]',
+                advice: t.adviceFog,
+                visibility: '< 150 m',
+                recommendedSpeed: '50 km/h',
+                maxSpeedLimit: 50,
+                fogOpacity: dynamicOpacity,
+                fogColor: '#EF4444',
+                skyTop: '#2b0b0b',
+                skyBottom: '#6e1a1a',
+                hasFog: true,
+                isCritical: true
+            };
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTranslations();
-            initRealVisitorCounter();
+            fetchAdafruitVisitorCounter();
+            fetchAdafruitBroadcast();
             checkAdminSession();
-            checkActiveBroadcast();
-
-            // Automatically prompt browser for location permission on page load
-            setTimeout(() => {
-                requestGeolocationPermission();
-            }, 1200);
+            setTimeout(requestGeolocationPermission, 1200);
 
             const introOverlay = document.getElementById('intro-overlay');
             const skipIntroBtn = document.getElementById('skip-intro-btn');
@@ -1136,24 +1170,18 @@
             function closeIntro() {
                 if (!introOverlay) return;
                 introOverlay.classList.add('fade-out');
-                setTimeout(() => {
-                    if (introOverlay.parentNode) {
-                        introOverlay.remove();
-                    }
-                }, 650);
+                setTimeout(() => { if (introOverlay.parentNode) introOverlay.remove(); }, 650);
             }
 
-            if (skipIntroBtn) {
-                skipIntroBtn.addEventListener('click', closeIntro);
-            }
-
-            if (introVideo) {
-                introVideo.addEventListener('ended', closeIntro);
-                setTimeout(closeIntro, 15000);
-            }
+            if (skipIntroBtn) skipIntroBtn.addEventListener('click', closeIntro);
+            if (introVideo) introVideo.addEventListener('ended', closeIntro);
 
             refreshTelemetry();
-            pollIntervalTimer = setInterval(refreshTelemetry, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
+            pollIntervalTimer = setInterval(() => {
+                refreshTelemetry();
+                fetchAdafruitVisitorCounter();
+                fetchAdafruitBroadcast();
+            }, PROGRAMMER_CONFIG.POLL_INTERVAL_MS);
         });
 
         function toggleCameraTab(idx) {
@@ -1176,319 +1204,51 @@
             }
         }
 
-        function calculateFogStatus(humidity) {
-            const h = Number(humidity);
-            const t = TRANSLATIONS[currentLang];
-
-            if (!Number.isFinite(h)) {
-                return {
-                    label: 'OFFLINE',
-                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
-                    accentBorder: 'border-t-4 border-t-slate-600',
-                    dotColor: 'bg-slate-400',
-                    valueColor: 'text-slate-400',
-                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
-                    visibility: 'Unknown',
-                    recommendedSpeed: '-- km/h',
-                    maxSpeedLimit: 140,
-                    fogOpacity: 0.25,
-                    fogColor: '#64748b',
-                    skyTop: '#070b14',
-                    skyBottom: '#1e293b',
-                    hasFog: false,
-                    isCritical: false
-                };
-            }
-
-            if (h < 30) {
-                return {
-                    label: t.statusClear,
-                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
-                    accentBorder: 'border-t-4 border-t-[#10B981]',
-                    dotColor: 'bg-[#10B981]',
-                    valueColor: 'text-[#10B981]',
-                    advice: t.adviceClear,
-                    visibility: '> 1,000 m',
-                    recommendedSpeed: '140 km/h',
-                    maxSpeedLimit: 140,
-                    fogOpacity: 0,
-                    fogColor: '#10B981',
-                    skyTop: '#051b2c',
-                    skyBottom: '#0e3d52',
-                    hasFog: false,
-                    isCritical: false
-                };
-            }
-            if (h <= 54) {
-                return {
-                    label: t.statusMist,
-                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
-                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
-                    dotColor: 'bg-[#38BDF8]',
-                    valueColor: 'text-[#38BDF8]',
-                    advice: t.adviceMist,
-                    visibility: '500 – 1,000 m',
-                    recommendedSpeed: '110 km/h',
-                    maxSpeedLimit: 110,
-                    fogOpacity: 0.48,
-                    fogColor: '#38BDF8',
-                    skyTop: '#09253d',
-                    skyBottom: '#174f7a',
-                    hasFog: true,
-                    isCritical: false
-                };
-            }
-            if (h <= 79) {
-                return {
-                    label: t.statusFogLikely,
-                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
-                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
-                    dotColor: 'bg-[#F59E0B]',
-                    valueColor: 'text-[#F59E0B]',
-                    advice: t.adviceFogLikely,
-                    visibility: '150 – 500 m',
-                    recommendedSpeed: '80 km/h',
-                    maxSpeedLimit: 80,
-                    fogOpacity: 0.72,
-                    fogColor: '#F59E0B',
-                    skyTop: '#291d0a',
-                    skyBottom: '#664914',
-                    hasFog: true,
-                    isCritical: false
-                };
-            }
-            return {
-                label: t.statusFog,
-                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
-                accentBorder: 'border-t-4 border-t-[#EF4444]',
-                dotColor: 'bg-[#EF4444]',
-                valueColor: 'text-[#EF4444]',
-                advice: t.adviceFog,
-                visibility: '< 150 m',
-                recommendedSpeed: '50 km/h',
-                maxSpeedLimit: 50,
-                fogOpacity: 0.92,
-                fogColor: '#EF4444',
-                skyTop: '#2b0b0b',
-                skyBottom: '#6e1a1a',
-                hasFog: true,
-                isCritical: true
-            };
-        }
-
-        function parseArduinoCloudPayload(data) {
-            if (typeof data === 'number') {
-                return { humidity: data, timestamp: new Date(), rawTs: '' };
-            }
-            if (typeof data === 'string' && !isNaN(parseFloat(data))) {
-                return { humidity: parseFloat(data), timestamp: new Date(), rawTs: '' };
-            }
-            if (data && typeof data === 'object') {
-                const item = Array.isArray(data) ? data[data.length - 1] : data;
-                if (!item || typeof item !== 'object') {
-                    return { humidity: null, timestamp: new Date(), rawTs: '' };
-                }
-
-                const rawVal =
-                    item.value !== undefined ? item.value :
-                    item.last_value !== undefined ? item.last_value :
-                    item.humidity !== undefined ? item.humidity : null;
-
-                const rawTime =
-                    item.created_at ||
-                    item.updated_at ||
-                    item.timestamp ||
-                    item.time || '';
-
-                const parsedHumidity = rawVal !== null ? Number(rawVal) : null;
-                const parsedTime = rawTime ? new Date(rawTime) : new Date();
-
-                return {
-                    humidity: Number.isFinite(parsedHumidity) ? parsedHumidity : null,
-                    timestamp: isNaN(parsedTime.getTime()) ? new Date() : parsedTime,
-                    rawTs: String(rawTime)
-                };
-            }
-            return { humidity: null, timestamp: new Date(), rawTs: '' };
-        }
-
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = String(str);
-            return div.innerHTML;
-        }
-
-        function formatDisplayTime(dateObj) {
-            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
-                return '--:--:--';
-            }
-            return dateObj.toLocaleString([], {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
-
         async function fetchHighwayTelemetry(highwayConfig) {
-            const url = (highwayConfig.arduinoCloudUrl || '').trim();
-            let liveData = null;
+            let hbaVal = null;
+            try {
+                const hbaRes = await secureFetch(`${PROGRAMMER_CONFIG.ADA_FEEDS.hba}?_=${Date.now()}`, { cache: 'no-store' });
+                if (hbaRes.ok) {
+                    const hbaData = await hbaRes.json();
+                    const parsedHba = parseValueFromPayload(hbaData);
+                    if (parsedHba !== null && !isNaN(parsedHba)) {
+                        hbaVal = parseFloat(parsedHba);
+                    }
+                }
+            } catch (e) {
+                console.warn('Hba feed warning:', e);
+            }
+
+            if (hbaVal !== null && Number.isFinite(hbaVal)) {
+                return { name: highwayConfig.name, humidity: hbaVal, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
+            }
 
             try {
-                const bustUrl = url.includes('?') ? `${url}&_=${Date.now()}` : `${url}?_=${Date.now()}`;
-                const response = await fetch(bustUrl, {
-                    method: 'GET',
-                    cache: 'no-store'
-                });
-
+                const response = await secureFetch(highwayConfig.arduinoCloudUrl, { method: 'GET', cache: 'no-store' });
                 if (response.ok) {
-                    const contentType = response.headers.get('content-type') || '';
-                    const payload = contentType.includes('application/json')
-                        ? await response.json()
-                        : await response.text();
-
-                    const parsed = parseArduinoCloudPayload(payload);
-                    if (parsed.humidity !== null && Number.isFinite(parsed.humidity)) {
-                        liveData = parsed;
-                        localStorage.setItem('tift_last_adafruit_ts', parsed.rawTs);
+                    const payload = await response.json();
+                    const val = parseValueFromPayload(payload);
+                    if (val !== null && Number.isFinite(parseFloat(val))) {
+                        return { name: highwayConfig.name, humidity: parseFloat(val), timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
                     }
                 }
             } catch (err) {
-                console.warn('Adafruit fetch failed:', err);
+                console.warn('Sensor fetch warning:', err);
             }
 
-            const overrideVal = localStorage.getItem('tift_humidity_override');
-            const baselineTs = localStorage.getItem('tift_override_baseline_ts') || '';
-
-            if (overrideVal !== null && overrideVal !== '') {
-                if (liveData && liveData.rawTs && liveData.rawTs !== baselineTs) {
-                    localStorage.removeItem('tift_humidity_override');
-                    localStorage.removeItem('tift_override_baseline_ts');
-                    updateOverrideBadge();
-                } else {
-                    const hum = parseFloat(overrideVal);
-                    if (!isNaN(hum)) {
-                        const now = new Date();
-                        const prevRecord = lastKnownReadings[highwayConfig.name];
-                        const prevHumidity = prevRecord ? prevRecord.humidity : hum;
-                        lastKnownReadings[highwayConfig.name] = { humidity: hum, timestamp: now, prevHumidity };
-                        
-                        if (!telemetryHistories[highwayConfig.name]) {
-                            telemetryHistories[highwayConfig.name] = [];
-                        }
-                        const hist = telemetryHistories[highwayConfig.name];
-                        const lastEntry = hist[hist.length - 1];
-                        if (!lastEntry || lastEntry.humidity !== hum) {
-                            hist.push({ humidity: hum, timestamp: now });
-                            if (hist.length > 10) hist.shift();
-                        }
-
-                        const status = calculateFogStatus(hum);
-                        if (status.isCritical) playFogAlertBeep();
-                        globalMaxSpeedLimit = status.maxSpeedLimit;
-                        updateGpsSpeedSign();
-
-                        return {
-                            name: highwayConfig.name,
-                            humidity: hum,
-                            timestamp: now,
-                            prevHumidity,
-                            webcamUrl: highwayConfig.webcamUrl
-                        };
-                    }
-                }
-            }
-
-            if (liveData) {
-                const { humidity, timestamp } = liveData;
-                const prevRecord = lastKnownReadings[highwayConfig.name];
-                const prevHumidity = prevRecord ? prevRecord.humidity : humidity;
-                
-                lastKnownReadings[highwayConfig.name] = { 
-                    humidity, 
-                    timestamp, 
-                    prevHumidity 
-                };
-
-                if (!telemetryHistories[highwayConfig.name]) {
-                    telemetryHistories[highwayConfig.name] = [];
-                }
-                const hist = telemetryHistories[highwayConfig.name];
-                const lastEntry = hist[hist.length - 1];
-                if (!lastEntry || lastEntry.humidity !== humidity) {
-                    hist.push({ humidity, timestamp });
-                    if (hist.length > 10) hist.shift();
-                }
-
-                const status = calculateFogStatus(humidity);
-                if (status.isCritical) playFogAlertBeep();
-                globalMaxSpeedLimit = status.maxSpeedLimit;
-                updateGpsSpeedSign();
-
-                return { 
-                    name: highwayConfig.name, 
-                    humidity, 
-                    timestamp, 
-                    prevHumidity, 
-                    webcamUrl: highwayConfig.webcamUrl 
-                };
-            }
-
-            if (lastKnownReadings[highwayConfig.name]) {
-                const cached = lastKnownReadings[highwayConfig.name];
-                const status = calculateFogStatus(cached.humidity);
-                if (status.isCritical) playFogAlertBeep();
-                globalMaxSpeedLimit = status.maxSpeedLimit;
-                updateGpsSpeedSign();
-
-                return {
-                    name: highwayConfig.name,
-                    humidity: cached.humidity,
-                    timestamp: cached.timestamp,
-                    prevHumidity: cached.prevHumidity,
-                    webcamUrl: cached.webcamUrl
-                };
-            }
-
-            const demoVal = highwayConfig.demoHumidity || 50;
-            if (!telemetryHistories[highwayConfig.name]) {
-                telemetryHistories[highwayConfig.name] = [{ humidity: demoVal, timestamp: new Date() }];
-            }
-
-            const status = calculateFogStatus(demoVal);
-            if (status.isCritical) playFogAlertBeep();
-            globalMaxSpeedLimit = status.maxSpeedLimit;
-            updateGpsSpeedSign();
-
-            return {
-                name: highwayConfig.name,
-                humidity: demoVal,
-                timestamp: new Date(),
-                prevHumidity: null,
-                webcamUrl: highwayConfig.webcamUrl
-            };
+            return { name: highwayConfig.name, humidity: highwayConfig.demoHumidity || 50, timestamp: new Date(), webcamUrl: highwayConfig.webcamUrl };
         }
 
-        function renderHighwayCards(readings) {
+       function renderHighwayCards(readings) {
+
             const grid = document.getElementById('highway-grid');
             const summaryAvgEl = document.getElementById('summary-avg-humidity');
             const t = TRANSLATIONS[currentLang];
             if (!grid) return;
 
-            let totalHumidity = 0;
-            let validCount = 0;
-
-            readings.forEach(item => {
-                if (item.humidity !== null && Number.isFinite(item.humidity)) {
-                    totalHumidity += item.humidity;
-                    validCount++;
-                }
-            });
-
-            if (validCount > 0 && summaryAvgEl) {
-                summaryAvgEl.textContent = `${(totalHumidity / validCount).toFixed(1)}%`;
-            }
+            let total = 0, valid = 0;
+            readings.forEach(r => { if (Number.isFinite(r.humidity)) { total += r.humidity; valid++; } });
+            if (valid > 0 && summaryAvgEl) summaryAvgEl.textContent = `${(total / valid).toFixed(1)}%`;
 
             const filteredReadings = readings.filter(item => {
                 const status = calculateFogStatus(item.humidity);
@@ -1511,86 +1271,46 @@
 
             grid.innerHTML = filteredReadings.map((item, idx) => {
                 const status = calculateFogStatus(item.humidity);
-
-                const humidityDisplay = item.humidity !== null && Number.isFinite(item.humidity)
-                    ? `${item.humidity.toFixed(1)}%`
-                    : '--%';
-
-                let trendIcon = '→';
-                let trendColor = 'text-slate-400';
-                if (item.prevHumidity !== null && item.humidity !== null) {
-                    if (item.humidity > item.prevHumidity + 0.2) {
-                        trendIcon = '↑';
-                        trendColor = 'text-amber-400';
-                    } else if (item.humidity < item.prevHumidity - 0.2) {
-                        trendIcon = '↓';
-                        trendColor = 'text-emerald-400';
-                    }
-                }
-
-                const fogCloudMarkup = status.hasFog ? `
-                    <div class="absolute inset-0 pointer-events-none overflow-hidden" style="opacity: ${status.fogOpacity};">
-                        <div class="fog-cloud-bank-1 absolute inset-y-0 left-0 flex items-center">
-                            <div class="w-1/2 h-full" style="background:
-                                radial-gradient(ellipse 35% 55% at 15% 45%, ${status.fogColor} 0%, transparent 70%),
-                                radial-gradient(ellipse 40% 65% at 45% 35%, ${status.fogColor} 0%, transparent 75%),
-                                radial-gradient(ellipse 38% 55% at 75% 50%, ${status.fogColor} 0%, transparent 70%),
-                                radial-gradient(ellipse 30% 50% at 95% 40%, ${status.fogColor} 0%, transparent 65%);">
-                            </div>
-                        </div>
-                        <div class="fog-cloud-bank-2 absolute inset-y-0 left-0 flex items-center">
-                            <div class="w-1/2 h-full" style="background:
-                                radial-gradient(ellipse 32% 45% at 22% 62%, ${status.fogColor} 0%, transparent 68%),
-                                radial-gradient(ellipse 42% 50% at 58% 58%, ${status.fogColor} 0%, transparent 72%);">
-                            </div>
-                        </div>
-                    </div>
-                ` : '';
-
+                const humidityDisplay = Number.isFinite(item.humidity) ? `${item.humidity.toFixed(1)}%` : '--%';
                 const isOpen = !!openCameraTabs[idx];
                 const safeWebcamUrl = escapeHTML(item.webcamUrl || '');
 
+                const horizonHazeMarkup = `
+                    <div class="absolute inset-x-0 top-[42%] h-8 blur-lg transition-colors duration-700"
+                         style="background-color: ${status.fogColor}; opacity: ${status.hasFog ? status.fogOpacity * 0.55 : 0}; display: ${status.hasFog ? 'block' : 'none'};"></div>
+                `;
+
                 const cameraSectionMarkup = item.webcamUrl ? `
                     <div class="flex flex-col gap-3">
-                        <button type="button"
-                                onclick="toggleCameraTab(${idx})"
-                                class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 active:scale-[0.99] text-sky-300 hover:text-white border border-sky-500/40 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                        <button type="button" onclick="toggleCameraTab(${idx})" class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 hover:text-white border border-sky-500/40 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
                             <span id="camera-btn-label-${idx}">${isOpen ? t.hideCamera : t.seeCamera}</span>
                         </button>
-
-                        <button type="button"
-                                onclick="openHistoryModal(${idx})"
-                                class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 active:scale-[0.99] text-indigo-300 hover:text-white border border-indigo-500/40 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                        <button type="button" onclick="openHistoryModal(${idx})" class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 hover:text-white border border-indigo-500/40 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer">
                             ${t.viewHistoryBtn}
                         </button>
-
                         <div id="camera-panel-${idx}" class="${isOpen ? '' : 'hidden'} rounded-xl overflow-hidden border border-[#1E293B] bg-[#070B14] shadow-inner">
                             <div class="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-[#1E293B] text-[11px] font-mono">
-                                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    ${t.liveCameraHeader}
-                                </span>
-                                <a href="${safeWebcamUrl}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">
-                                    ${t.fullTab}
-                                </a>
+                                <span class="text-slate-300 font-semibold">${t.liveCameraHeader}</span>
+                                <a href="${safeWebcamUrl}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">${t.fullTab}</a>
                             </div>
                             <div class="relative w-full h-72 sm:h-80 bg-slate-950">
-                                <iframe
-                                    id="camera-iframe-${idx}"
-                                    data-src="${safeWebcamUrl}"
-                                    ${isOpen ? `src="${safeWebcamUrl}"` : ''}
-                                    class="w-full h-full border-0"
-                                    loading="lazy"
-                                    title="Live Highway Camera">
-                                </iframe>
+                                <iframe id="camera-iframe-${idx}" data-src="${safeWebcamUrl}" ${isOpen ? `src="${safeWebcamUrl}"` : ''} class="w-full h-full border-0" loading="lazy" title="Live Camera"></iframe>
                             </div>
                         </div>
                     </div>
                 ` : '';
+
+                // Status-coloured animated fog; humidity controls its density.
+                const fogCloudsMarkup = `
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden z-20"
+                         style="--fog-color: ${status.fogColor}; opacity: ${status.hasFog ? status.fogOpacity : 0}; display: ${status.hasFog ? 'block' : 'none'};">
+                        <div class="cloud-patch-1 absolute top-2 left-3 rounded-full"
+                             style="background: radial-gradient(circle, var(--fog-color) 0%, transparent 70%); filter: blur(12px);"></div>
+                        <div class="cloud-patch-2 absolute bottom-2 right-4 rounded-full"
+                             style="background: radial-gradient(circle, var(--fog-color) 0%, transparent 70%); filter: blur(12px);"></div>
+                    </div>
+                `;
 
                 return `
                     <article class="bg-[#0E1626] border border-[#1E293B] ${status.accentBorder} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between gap-6 transition-all text-left relative overflow-hidden group hover:border-slate-700">
@@ -1599,8 +1319,7 @@
                         <div class="relative w-full h-36 rounded-2xl overflow-hidden border border-[#1E293B] shadow-inner select-none"
                              style="background: linear-gradient(180deg, ${status.skyTop} 0%, ${status.skyBottom} 52%, #0e1626 52%, #070b14 100%);">
                             
-                            <div class="absolute inset-x-0 top-[42%] h-8 blur-lg transition-colors duration-700"
-                                 style="background-color: ${status.fogColor}; opacity: ${status.hasFog ? 0.65 : 0.12};"></div>
+                            ${horizonHazeMarkup}
 
                             <svg viewBox="0 0 400 130" class="w-full h-full relative z-10" preserveAspectRatio="xMidYMid slice">
                                 <defs>
@@ -1620,7 +1339,7 @@
                                 <line x1="225" y1="65" x2="365" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.55" />
                                 <line x1="200" y1="65" x2="200" y2="130" stroke="#e2e8f0" stroke-width="2.5" stroke-dasharray="10 14" stroke-opacity="0.7" class="animate-road-dashes" />
 
-                                <g class="animate-car-2" style="opacity: ${status.hasFog ? Math.max(0.3, 1 - status.fogOpacity * 0.65) : 0.95};">
+                                <g class="animate-car-2" style="opacity: ${Math.max(0.15, 1 - status.fogOpacity * 0.85)};">
                                     <ellipse cx="242" cy="88" rx="18" ry="4" fill="url(#headlight-glow-${idx})" />
                                     <path d="M231,74 L234,68 L250,68 L253,74 Z" fill="#475569" />
                                     <rect x="229" y="74" width="26" height="8" rx="2" fill="#64748b" />
@@ -1646,9 +1365,7 @@
                                 </g>
                             </svg>
 
-                            <div class="absolute inset-0 z-20 pointer-events-none transition-opacity duration-700">
-                                ${fogCloudMarkup}
-                            </div>
+                            ${fogCloudsMarkup}
 
                             <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700/80 shadow-md">
                                 <span class="w-2 h-2 rounded-full ${status.dotColor}"></span>
@@ -1661,28 +1378,26 @@
                         ${cameraSectionMarkup}
 
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug text-left">
-                                ${escapeHTML(item.name)}
-                            </h2>
-
+                            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">${escapeHTML(item.name)}</h2>
                             <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-extrabold tracking-wider border shrink-0 self-start shadow-sm ${status.badgeBg}">
                                 <span class="w-2.5 h-2.5 rounded-full ${status.dotColor}"></span>
                                 ${escapeHTML(status.label)}
                             </span>
                         </div>
 
-                        <!-- Read-Only Humidity Display -->
-                        <div class="bg-[#070B14]/80 border border-[#1E293B] rounded-2xl px-5 py-4 flex items-baseline justify-between text-left shadow-inner">
+                        <!-- Humidity Display Box -->
+                        <div class="relative bg-[#070B14]/90 border border-[#1E293B] rounded-2xl px-5 py-5 flex items-center justify-between text-left shadow-inner overflow-hidden">
+                            <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-sky-500/5 blur-2xl pointer-events-none"></div>
                             <div>
-                                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 text-left block">${t.humidityTitle}</span>
-                                <span class="text-xs font-mono ${trendColor} mt-0.5 inline-block font-bold">${t.trendLabel}: ${trendIcon}</span>
+                                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 block">${t.humidityTitle}</span>
+                                <span class="text-[10px] font-mono text-sky-400 mt-0.5 block">Live Cloud Sensor Value</span>
                             </div>
-                            <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">
-                                ${escapeHTML(humidityDisplay)}
-                            </span>
+                            <div class="relative flex items-baseline gap-1">
+                                <span class="text-4xl sm:text-5xl font-extrabold font-mono tabular-nums tracking-tight ${status.valueColor}">${escapeHTML(humidityDisplay.replace('%',''))}</span>
+                                <span class="text-2xl sm:text-3xl font-extrabold font-mono ${status.valueColor}">%</span>
+                            </div>
                         </div>
 
-                        <!-- Estimated Visibility & Safe Speed Metrics -->
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-[#070B14]/60 border border-[#1E293B] rounded-2xl p-4 text-left shadow-inner">
                                 <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block font-bold">${t.estVisibility}</span>
@@ -1693,28 +1408,121 @@
                                 <span class="text-sm sm:text-base font-mono font-bold ${status.valueColor} mt-1 block">${escapeHTML(status.recommendedSpeed)}</span>
                             </div>
                         </div>
-
-                        <!-- Driver Safety Advice Box -->
                         <div class="text-xs sm:text-sm text-slate-300 font-medium bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-left shadow-sm">
                             <span class="text-sky-400 font-bold uppercase tracking-wider block mb-1">${t.safetyAdvice}</span>
                             ${escapeHTML(status.advice)}
-                        </div>
-
-                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 font-mono pt-2 border-t border-[#1E293B]/70 text-left">
-                            <span class="uppercase tracking-wider text-slate-500 text-left">${t.updatedLabel}</span>
-                            <time datetime="${item.timestamp.toISOString()}" class="text-slate-300 font-medium text-right">
-                                ${escapeHTML(formatDisplayTime(item.timestamp))}
-                            </time>
                         </div>
                     </article>
                 `;
             }).join('');
         }
 
+        function calculateFogStatus(humidity) {
+            const h = Number(humidity);
+            const t = TRANSLATIONS[currentLang];
+            const clampedHumidity = Number.isFinite(h) ? Math.min(100, Math.max(0, h)) : 0;
+            // More humidity means a denser (less transparent) fog overlay.
+            const dynamicOpacity = Math.min(0.90, 0.18 + (clampedHumidity / 100) * 0.72);
+
+            if (!Number.isFinite(h)) {
+                return {
+                    label: 'OFFLINE',
+                    badgeBg: 'bg-slate-800/80 text-slate-300 border-slate-700',
+                    accentBorder: 'border-t-4 border-t-slate-600',
+                    dotColor: 'bg-slate-400',
+                    valueColor: 'text-slate-400',
+                    advice: currentLang === 'bg' ? 'Данните от сензора в момента са недостъпни.' : 'Sensor data currently unavailable.',
+                    visibility: 'Unknown',
+                    recommendedSpeed: '-- km/h',
+                    fogOpacity: 0,
+                    fogColor: '#64748B',
+                    fogTint: 'rgba(100, 116, 139, 0.0)',
+                    distantCarOpacity: 0.8,
+                    distantCarScale: 0.85,
+                    hasFog: false
+                };
+            }
+
+            if (h < 30) {
+                return {
+                    label: t.statusClear,
+                    badgeBg: 'bg-emerald-500/15 text-[#10B981] border-emerald-500/40',
+                    accentBorder: 'border-t-4 border-t-[#10B981]',
+                    dotColor: 'bg-[#10B981]',
+                    valueColor: 'text-[#10B981]',
+                    advice: t.adviceClear,
+                    visibility: '> 1,000 m',
+                    recommendedSpeed: '140 km/h',
+                    fogOpacity: 0,
+                    fogColor: '#10B981',
+                    fogTint: 'rgba(16, 185, 129, 0)',
+                    distantCarOpacity: 0.95,
+                    distantCarScale: 0.85,
+                    hasFog: false
+                };
+            }
+            if (h <= 54) {
+                return {
+                    label: t.statusMist,
+                    badgeBg: 'bg-sky-500/15 text-[#38BDF8] border-sky-500/40',
+                    accentBorder: 'border-t-4 border-t-[#38BDF8]',
+                    dotColor: 'bg-[#38BDF8]',
+                    valueColor: 'text-[#38BDF8]',
+                    advice: t.adviceMist,
+                    visibility: '500 – 1,000 m',
+                    recommendedSpeed: '110 km/h',
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#38BDF8',
+                    fogTint: 'rgba(56, 189, 248, 0.4)',
+                    distantCarOpacity: 0.7,
+                    distantCarScale: 0.82,
+                    hasFog: true
+                };
+            }
+            if (h <= 79) {
+                return {
+                    label: t.statusFogLikely,
+                    badgeBg: 'bg-amber-500/15 text-[#F59E0B] border-amber-500/40',
+                    accentBorder: 'border-t-4 border-t-[#F59E0B]',
+                    dotColor: 'bg-[#F59E0B]',
+                    valueColor: 'text-[#F59E0B]',
+                    advice: t.adviceFogLikely,
+                    visibility: '150 – 500 m',
+                    recommendedSpeed: '80 km/h',
+                    fogOpacity: dynamicOpacity,
+                    fogColor: '#F59E0B',
+                    fogTint: 'rgba(245, 158, 11, 0.45)',
+                    distantCarOpacity: 0.35,
+                    distantCarScale: 0.78,
+                    hasFog: true
+                };
+            }
+            return {
+                label: t.statusFog,
+                badgeBg: 'bg-red-500/15 text-[#EF4444] border-red-500/40',
+                accentBorder: 'border-t-4 border-t-[#EF4444]',
+                dotColor: 'bg-[#EF4444]',
+                valueColor: 'text-[#EF4444]',
+                advice: t.adviceFog,
+                visibility: '< 150 m',
+                recommendedSpeed: '50 km/h',
+                fogOpacity: dynamicOpacity,
+                fogColor: '#EF4444',
+                fogTint: 'rgba(239, 68, 68, 0.55)',
+                distantCarOpacity: 0.1,
+                distantCarScale: 0.7,
+                hasFog: true
+            };
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
         async function refreshTelemetry() {
-            const results = await Promise.all(
-                PROGRAMMER_CONFIG.HIGHWAYS.map(hw => fetchHighwayTelemetry(hw))
-            );
+            const results = await Promise.all(PROGRAMMER_CONFIG.HIGHWAYS.map(hw => fetchHighwayTelemetry(hw)));
             renderHighwayCards(results);
         }
     </script>
