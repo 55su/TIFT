@@ -1,0 +1,38 @@
+OLED.init(128, 64)
+let temp = 0
+let loading = 0
+let humidity = 0
+for (let index = 0; index < 100; index++) {
+    OLED.drawLoading(loading)
+    loading += 1
+    basic.pause(100)
+}
+OLED.clear()
+ESP8266_IoT.initWIFI(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200)
+ESP8266_IoT.connectWifi("virus-019", "12radi01")
+loops.everyInterval(15000, function () {
+    temp = Environment.dht11value(Environment.DHT11Type.DHT11_temperature_C, DigitalPin.P1)
+    humidity = Environment.dht11value(Environment.DHT11Type.DHT11_humidity, DigitalPin.P1)
+    OLED.writeStringNewLine("55SU THE INVINCIBLES")
+    OLED.newLine()
+    OLED.writeStringNewLine("Humidity: ")
+    OLED.writeNum(humidity)
+    OLED.writeStringNewLine("Temparature: ")
+    OLED.writeNum(temp)
+    if (ESP8266_IoT.wifiState(true)) {
+        basic.showIcon(IconNames.Yes)
+    }
+    if (ESP8266_IoT.thingSpeakState(true)) {
+        basic.showIcon(IconNames.No)
+    }
+})
+/**
+ * Define your variables
+ */
+basic.forever(function () {
+    ESP8266_IoT.connectThingSpeak()
+    ESP8266_IoT.setData(
+    "LZUIB97HI5R72T9Q",
+    Environment.dht11value(Environment.DHT11Type.DHT11_humidity, DigitalPin.P1)
+    )
+})
